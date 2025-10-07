@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Form, Input, Button, Typography, Alert, Card } from "antd";
-import { USERNAME, PASSWORD } from "@utils/constants";
+import { mockLogin } from "@utils/mockLogin";
 
 import { LoginComponentProps } from "../types/types";
 
@@ -12,13 +12,16 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
     try {
       const { username, password } = await form.validateFields();
 
-      if (username === USERNAME && password === PASSWORD) {
-        onLoginSuccess?.(); // optional chaining
+      const user = await mockLogin(username, password);
+      if (user) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userRole", user.role);
+        onLoginSuccess?.(user);
       } else {
         setErrorMsg("Invalid credentials");
       }
     } catch (err) {
-      console.warn(err);
+      console.warn("Form validation failed", err);
     }
   };
 
@@ -59,28 +62,14 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
             label={<span style={{ color: "#e0e0e0", fontWeight: 500 }}>Username</span>}
             name="username"
             rules={[{ required: true, message: "Please input your username!" }]}>
-            <Input
-              autoFocus
-              style={{
-                color: "rgba(0, 0, 0, 0.65)",
-                border: "1px solid rgb(62, 74, 107)",
-              }}
-              placeholder="Enter your username"
-            />
+            <Input placeholder="Enter your username" autoFocus />
           </Form.Item>
 
           <Form.Item
             label={<span style={{ color: "#e0e0e0", fontWeight: 500 }}>Password</span>}
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}>
-            <Input.Password
-              style={{
-                //background: "#232b3e",
-                color: "rgba(0, 0, 0, 0.65)",
-                border: "1px solid rgb(62, 74, 107)",
-              }}
-              placeholder="Enter your password"
-            />
+            <Input.Password placeholder="Enter your password" />
           </Form.Item>
 
           {errorMsg && (
@@ -94,6 +83,7 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
               type="primary"
               htmlType="submit"
               block
+              data-testid="login-button"
               style={{
                 fontWeight: 600,
                 letterSpacing: 1,
@@ -101,8 +91,7 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
                 border: "none",
                 color: "#fff",
                 boxShadow: "0 2px 8px #0002",
-              }}
-              data-testid="login-button">
+              }}>
               Login
             </Button>
           </Form.Item>

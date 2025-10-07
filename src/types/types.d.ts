@@ -18,9 +18,14 @@ interface GridDropOverlayProps {
   };
 }
 
-export type LoginComponentProps = {
-  onLoginSuccess?: () => void;
-};
+export interface User {
+  id: string;
+  username: string;
+  role: string;
+}
+export interface LoginComponentProps {
+  onLoginSuccess?: (user?: User) => void;
+}
 
 export interface MainWorkspaceProps {
   children: React.ReactNode;
