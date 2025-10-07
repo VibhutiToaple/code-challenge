@@ -92,7 +92,7 @@ export const MainWorkspace = ({
         width: "100%",
         height: "100vh",
         overflow: "hidden",
-        background: "var(--bg-color, #1e2230)",
+        background: "var(--background-color)",
       }}
       onDrop={handleDrop}
       onDragOver={(e) => {

@@ -60,7 +60,7 @@ const GridContainer = () => {
         width: "100%",
         height: "calc(100vh - 80px)",
         overflow: "hidden",
-        background: "var(--bg-color)",
+        background: "var(--background-color)",
       }}>
       {/* Layout Switcher */}
       <div

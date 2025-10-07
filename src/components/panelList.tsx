@@ -2,8 +2,10 @@ import FruitBookPanel from "@panels/FruitBookPanel";
 import AboutPanel from "@panels/AboutPanel";
 import { FruitViewPanel } from "@panels/FruitViewPanel";
 
+import { PanelConfig } from "../types/types";
+
 export const panelList = [
   { key: "fruitbook", title: "Fruit Book", content: <FruitBookPanel /> },
   { key: "fruitview", title: "Fruit View", content: <FruitViewPanel /> },
   { key: "about", title: "About", content: <AboutPanel /> },
-];
+] satisfies PanelConfig[];

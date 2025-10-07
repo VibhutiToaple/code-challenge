@@ -106,9 +106,13 @@ const FruitEnrichmentPanel = ({ fruit, onClose }: FruitEnrichmentPanelProps) => 
     }));
   };
 
+  const [activePanelId, setActivePanelId] = useState<string | null>(null);
+
+  const handleActivate = (id?: string) => setActivePanelId(id || null);
+
   return (
     <ResizableDraggablePanel
-      //id={`fruit-enrichment-${fruit.id}`}
+      id={`fruit-enrichment-${fruit.id}`}
       title={`${fruit.name} Enrichment`}
       content={
         <div style={{ height: "100%", width: "100%" }}>
@@ -144,6 +148,8 @@ const FruitEnrichmentPanel = ({ fruit, onClose }: FruitEnrichmentPanelProps) => 
       onClose={onClose}
       onMove={handleMove}
       onResize={handleResize}
+      onActivate={(id) => handleActivate(id)}
+      style={{ zIndex: activePanelId === fruit.id ? 3000 : 1000 }}
     />
   );
 };

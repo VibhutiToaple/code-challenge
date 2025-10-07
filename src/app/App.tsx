@@ -127,7 +127,7 @@ const App = () => {
           style={{
             flex: 1,
             position: "relative",
-            background: "#232b3e",
+            background: "var(--background-color)",
             overflow: "hidden",
             height: "100%",
             width: "100%",

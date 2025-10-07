@@ -1,89 +1,127 @@
-// Theme Variables
+/* theme.less */
 
-// Light Theme Variables
-@light-primary-color: #4CAF50;
-@light-secondary-color: #FFC107;
-@light-background-color: #F5F5F5;
-@light-text-color: #333;
-@light-border-radius: 4px;
+/* --- Light Theme --- */
+.theme-light {
+  --primary-color: #4CAF50;
+  --secondary-color: #FFC107;
+  --background-color: #F5F5F5;
+  --text-color: #333;
+  --border-radius: 4px;
+  --panel-header-bg: #3C3C3C;
+  --panel-header-title-color: #fff;
+  --panel-body-bg: #787878;
+  --panel-border-color: #ccc;
+  --panel-shadow: rgba(0, 0, 0, 0.1);
+  --resize-handle-bg: rgba(0, 0, 0, 0);
+  --resize-handle-hover-bg: rgba(0, 0, 0, 0.2);
+  --dragging-opacity: 0.95;
+  --active-z-index: 1000;
+  --inactive-z-index: 1;
+  --button-hover-filter: brightness(0.9); /* ✅ Works at runtime */
+  --button-active-filter: brightness(0.8);
+  --transition-duration: 0.3s;
+  --transition-ease: ease;
+  --link-hover-opacity: 0.8;
+  --header-bg: #f0f0f0;
+  --header-color: #000;
+  --header-padding: 16px;
+  --header-font-size: 1.5em;
+  --button-padding: 10px 20px;
+  --button-border: none;
+  --button-border-radius: var(--border-radius);
+  --button-cursor: pointer;
+  --button-transition: filter 0.25s ease, transform 0.1s;
+  --link-text-decoration: none;
+  --link-transition: opacity 0.2s ease;
+  --header-border-radius: var(--border-radius);
+  --header-font-family: 'Segoe UI', Arial, sans-serif;
+  --header-margin: 0;
+}
 
-// Dark Theme Variables
-@dark-primary-color: #81C784;
-@dark-secondary-color: #FFD54F;
-@dark-background-color: #222;
-@dark-text-color: #000000;
-@dark-border-radius: 4px;
+/* --- Dark Theme --- */
+.theme-dark {
+  --primary-color: #81C784;
+  --secondary-color: #FFD54F;
+  --background-color: #222;
+  --text-color: #F5F5F5;
+  --border-radius: 4px;
+  --panel-header-bg: #01497c;
+  --panel-body-bg: #2a6f97;
+  --panel-border-color: #444;
+  --panel-shadow: rgba(0, 0, 0, 0.5);
+  --resize-handle-bg: rgba(255, 255, 255, 0.2);
+  --resize-handle-hover-bg: rgba(255, 255, 255, 0.4);
+  --dragging-opacity: 0.95;
+  --active-z-index: 1000;
+  --inactive-z-index: 1;
+  --button-hover-filter: brightness(0.9); /* ✅ Works at runtime */
+  --button-active-filter: brightness(0.8);
+  --transition-duration: 0.3s;
+  --transition-ease: ease;
+  --link-hover-opacity: 0.8;
+  --header-bg: #333;
+  --header-color: #fff;
+  --header-padding: 16px;
+  --header-font-size: 1.5em;
+  --button-padding: 10px 20px;
+  --button-border: none;
+  --button-border-radius: var(--border-radius);
+  --button-cursor: pointer;
+  --button-transition: filter 0.25s ease, transform 0.1s;
+  --link-text-decoration: none;
+  --link-transition: opacity 0.2s ease;
+  --header-border-radius: var(--border-radius);
+  --header-font-family: 'Segoe UI', Arial, sans-serif;
+  --header-margin: 0;
+}
 
-// Default (for backward compatibility)
-@primary-color: @light-primary-color;
-@secondary-color: @light-secondary-color;
-@background-color: @light-background-color;
-@text-color: @light-text-color;
-@border-radius: @light-border-radius;
-
-// Global Styles
+/* --- Global Styles --- */
 body {
-  background: @background-color;
-  color: @text-color;
+  background: var(--background-color);
+  color: var(--text-color);
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-// Light Theme
-.theme-light {
-  --primary-color: @light-primary-color;
-  --secondary-color: @light-secondary-color;
-  --background-color: @light-background-color;
-  --text-color: @light-text-color;
-  --border-radius: @light-border-radius;
-
-  background: var(--background-color);
-  color: var(--text-color);
-}
-
-// Dark Theme
-.theme-dark {
-  --primary-color: @dark-primary-color;
-  --secondary-color: @dark-secondary-color;
-  --background-color: @dark-background-color;
-  --text-color: @dark-text-color;
-  --border-radius: @dark-border-radius;
-
-  background: var(--background-color);
-  color: var(--text-color);
-}
-
-a {
-  color: var(--primary-color, @primary-color);
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
+/* --- Buttons --- */
 .button {
-  background: var(--primary-color, @primary-color);
+  background: var(--primary-color);
   color: #fff;
   border: none;
-  border-radius: var(--border-radius, @border-radius);
+  border-radius: var(--border-radius);
   padding: 10px 20px;
   cursor: pointer;
   transition: filter 0.25s ease, transform 0.1s ease;
 
   &:hover {
-  filter: brightness(0.9);
-  transform: translateY(-1px);
-}
+    filter: brightness(0.9); /* ✅ Works at runtime */
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    filter: brightness(0.8);
+    transform: translateY(0);
+  }
 }
 
+/* --- Links --- */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
 
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+/* --- Headers --- */
 .header {
-  background: var(--secondary-color, @secondary-color);
+  background: var(--secondary-color);
   padding: 16px;
-  border-radius: var(--border-radius, @border-radius);
+  border-radius: var(--border-radius);
   color: #fff;
   font-size: 1.5em;
 }
-
-// Add more theme styles as needed...
