@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, JSX } from "react";
 
 export interface EnrichmentPanelProps {
   fruit: string;
@@ -45,6 +45,7 @@ export type PanelProps = {
 };
 
 export type ResizableDraggablePanelProps = {
+  id?: string;
   title: string;
   content: React.ReactNode;
   x: number;
@@ -56,6 +57,10 @@ export type ResizableDraggablePanelProps = {
   onClose: () => void;
   onMove: (dx: number, dy: number) => void;
   onResize: (dw: number, dh: number) => void;
+  onActivate?: (id?: string) => void;
+  style?: React.CSSProperties;
+  onFocus?: () => void;
+  zIndex?: number;
 };
 
 export type ThemeMode = "light" | "dark";
@@ -99,3 +104,9 @@ export type OpenPanel = {
   width: number;
   height: number;
 };
+
+interface PanelConfig {
+  key: string;
+  title: string;
+  content: JSX.Element;
+}

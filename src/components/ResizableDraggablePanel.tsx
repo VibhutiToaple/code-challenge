@@ -36,6 +36,11 @@ const ResizableDraggablePanel = ({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setDragging] = useState(false);
   const [isResizing, setResizing] = useState(false);
+  //const [zIndex, setZIndex] = useState(0);
+
+  useEffect(() => {
+   // setZIndex(Date.now());
+  }, []);
 
   /** Helper: get container bounds safely */
   const getContainerBounds = useCallback(() => {
@@ -166,7 +171,8 @@ const ResizableDraggablePanel = ({
         onPointerDown={handlePointerDown}
         style={{
           cursor: "grab",
-          background: "var(--panel-header-bg, #f5f5f5)",
+          background: "var(--panel-header-bg)",
+          color: "var(--panel-header-title-color)",
           padding: "8px 12px",
           display: "flex",
           alignItems: "center",
@@ -187,7 +193,14 @@ const ResizableDraggablePanel = ({
       </div>
 
       {/* CONTENT */}
-      <div className="panel-content" style={{ padding: "12px" }}>
+      <div
+        className="panel-content"
+        style={{
+          flex: 1,
+          background: "var(--panel-body-bg)",
+          height: `calc(100% - 40px)`,
+          overflow: "auto",
+        }}>
         {content}
       </div>
 

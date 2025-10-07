@@ -126,7 +126,7 @@ const UserProfile = ({ onLogout, onThemeToggle, theme }: UserProfileProps) => {
           role="presentation"
           style={{
             position: "fixed",
-            zIndex: 9999,
+            zIndex: 99999,
             top: 0,
             left: 0,
             width: "100vw",

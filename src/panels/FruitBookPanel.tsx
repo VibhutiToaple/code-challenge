@@ -44,6 +44,7 @@ const defaultColDef = {
 const FruitBook = () => {
   const [selectedFruit, setSelectedFruit] = useState<any | null>(null);
   const gridRef = useRef<any>(null);
+  const portalContainer = document.querySelector(".main-container") || document.body;
 
   const onRowDoubleClicked = (event: any) => {
     setSelectedFruit(event.data);
@@ -114,7 +115,7 @@ const FruitBook = () => {
       {selectedFruit &&
         ReactDOM.createPortal(
           <FruitEnrichmentPanel fruit={selectedFruit} onClose={() => setSelectedFruit(null)} />,
-          document.body
+          portalContainer
         )}
     </>
   );
