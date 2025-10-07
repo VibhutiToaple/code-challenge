@@ -1,0 +1,10 @@
+export const NAV_BAR_HEIGHT = 56;
+export const GRID_ROWS = 2;
+export const GRID_COLS = 2;
+export const INACTIVITY_LIMIT = 5 * 60 * 1000; // 5 minutes
+export const THEME_KEY = "theme";
+export const DARK = "dark";
+export const LIGHT = "light";
+export const APP_THEME = "app-theme";
+export const USERNAME = "admin";
+export const PASSWORD = "1234";

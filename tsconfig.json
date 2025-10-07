@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    /* === Core React/TypeScript Setup === */
+    "target": "ESNext", // modern JS output
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // include DOM + modern JS features
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true, // enables all strict checks
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+
+    /* === React & JSX Support === */
+    "jsx": "react-jsx", // new JSX transform (React 17+)
+
+    /* === Vitest Types === */
+    "types": ["vitest/globals", "vite/client", "node", "@testing-library/jest-dom"],
+
+    /* === Path Aliases (optional, if you use @/components etc.) === */
+    "baseUrl": ".",
+    "paths": {
+      "@src/*": ["src/*"],
+      "@components/*": ["src/components/*"],
+      "@data/*": ["src/data/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@panels/*": ["src/panels/*"],
+      "@utils/*": ["src/utils/*"],
+      "@assets/*": ["src/assets/*"],
+    },
+  },
+  "include": ["src", "vite.config.ts", "vitest.config.ts", "auth/**/*.ts", "server/**/*.js"],
+  "exclude": ["node_modules", "dist"]
+}
+
+
+

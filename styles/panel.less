@@ -1,0 +1,13 @@
+.panel.dragging {
+  opacity: 0.95;
+  cursor: grabbing;
+}
+
+.resize-handle::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.2) 50%);
+  border-radius: 2px;
+}
