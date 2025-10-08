@@ -94,16 +94,11 @@ const FruitEnrichmentPanel = ({ fruit, onClose }: FruitEnrichmentPanelProps) => 
       id={`fruit-enrichment-${fruit.id}`}
       title={`${fruit.name} Enrichment`}
       content={
-        <div style={{ height: "100%", width: "100%" }}>
+        <div className="fruit-enrichment-panel">
           <div
             className="ag-theme-alpine"
             style={{
               height: panelState.height - 40,
-              width: "100%",
-              background: "#20263a",
-              borderRadius: 10,
-              fontSize: 15,
-              color: "#e0e6f5",
             }}>
             <AgGridReact
               columnDefs={columnDefs}

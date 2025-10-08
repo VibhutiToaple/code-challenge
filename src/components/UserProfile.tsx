@@ -104,39 +104,18 @@ const UserProfile = ({ onLogout, onThemeToggle, theme }: UserProfileProps) => {
   );
 
   return (
-    <div
-      className="top-bar"
-      style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="top-bar">
       <div style={{ marginLeft: "auto" }}>
         <Button
+          className="user-profile-button"
           shape="circle"
           icon={<UserOutlined />}
           onClick={handleOpen}
-          style={{
-            background: "#232634",
-            border: "1px solid #35394a",
-            color: "#b0b4c1",
-          }}
         />
       </div>
 
       {visible && (
-        <div
-          role="presentation"
-          style={{
-            position: "fixed",
-            zIndex: 99999,
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(23, 25, 34, 0.85)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "background 0.2s",
-          }}
-          onClick={handleClose}>
+        <div className="user-popover-backdrop" role="presentation" onClick={handleClose}>
           <div style={{ pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
             <UserPopover
               userInfo={userInfo}

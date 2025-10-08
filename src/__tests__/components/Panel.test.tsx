@@ -1,44 +1,30 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
 import Panel from "../../components/Panel";
 
-describe("<Panel />", () => {
-  it("renders the title", () => {
-    render(<Panel title="Test Panel">Some content</Panel>);
-
-    const titleElement = screen.getByText("Test Panel");
-    expect(titleElement).toBeInTheDocument();
-    expect(titleElement).toHaveStyle({ fontWeight: "700" });
-  });
-
-  it("renders children inside the panel", () => {
+describe("Panel", () => {
+  test("renders title and children correctly", () => {
     render(
-      <Panel title="Fruits">
-        <div data-testid="child">Apple</div>
+      <Panel title="Test Panel">
+        <p>Child content</p>
       </Panel>
     );
 
-    const child = screen.getByTestId("child");
-    expect(child).toBeInTheDocument();
-    expect(child).toHaveTextContent("Apple");
+    expect(screen.getByText("Test Panel")).toBeInTheDocument();
+    expect(screen.getByText("Child content")).toBeInTheDocument();
   });
 
-  it("applies expected styles to container", () => {
-    const { container } = render(<Panel title="Styled">Content</Panel>);
-    const panelDiv = container.firstChild as HTMLElement;
+  test("has correct class names for structure", () => {
+    render(
+      <Panel title="Styled Panel">
+        <span>Example</span>
+      </Panel>
+    );
 
-    expect(panelDiv).toHaveStyle({
-      background: "#232b3e",
-      borderRadius: "8px",
-      color: "#e0e0e0",
-    });
-  });
+    const container = document.querySelector(".panel-container");
+    expect(container).toBeInTheDocument();
 
-  it("renders both title and children correctly together", () => {
-    render(<Panel title="Dashboard">Welcome to your workspace</Panel>);
-
-    expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Welcome to your workspace")).toBeInTheDocument();
+    const title = document.querySelector(".panel-title");
+    expect(title).toBeInTheDocument();
+    expect(title?.textContent).toBe("Styled Panel");
   });
 });

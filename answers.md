@@ -2,12 +2,12 @@
 
 **1.	How much time did you spend on the engineering task?**
 
-I spent around 12 hours on the engineering task, which included code review, refactoring for maintainability, and building a robust automated test suite covering UI components, custom hooks, and utilities with near-complete code coverage.
+I spent around 12 hours on the engineering task, which included code review, refactoring for maintainability, and building a robust test suite covering UI components, custom hooks, and utilities with near-complete code coverage.
 Estimated Time Spent
 
 | **Area** | **Description** | **Estimated Time** |
 |-----------|------------------|--------------------|
-| Component analysis & refactoring | Reviewing each React + TypeScript component (e.g., ResizableDraggablePanel, MainWorkspace, UserProfile, etc.) and refactoring for clarity, accessibility, ESLint compliance. | 5 hours |
+| Component analysis & refactoring | Reviewing each React + TypeScript component (e.g., ResizableDraggablePanel, MainWorkspace, UserProfile, etc.) and refactoring for clarity, accessibility, ESLint compliance and documentation | 5 hours |
 | Unit testing setup and writing testcases | Writing comprehensive test cases using Vitest + React Testing Library for all components, hooks, and utils | 4 hours |
 | Test debugging & mock adjustments | Fixing async behavior, mocking DOM APIs (ResizeObserver, localStorage, etc.), stabilizing tests. | 2 hours |
 | React version 19, Replace webpack to vite, linting setup | Dependency updates, peer deps fixes, Code fixes (ReactDOM.render → createRoot, removal of React imports, etc.), Library compatibility checks (Ant Design, ag-grid, rc-*, etc.), lint/type fixups | 1 hours |
@@ -29,8 +29,6 @@ The current mockLogin function simulates auth locally.
 Next step would be:
 Integrate with a real API using JWT or OAuth2.
 Add route guards, refresh tokens, and logout flow.
-
-I don’t have hands-on backend experience yet, but I’m interested in implementing a real backend for authentication using Node.js. I would have done that as part of this task.
 
 - End-to-End (E2E) Tests
 

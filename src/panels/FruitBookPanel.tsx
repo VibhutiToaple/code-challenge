@@ -59,28 +59,9 @@ const FruitBook = () => {
 
   return (
     <>
-      <div style={{ padding: 0, background: "#232b3e", height: 600 }}>
-        <div
-          style={{
-            fontFamily: "monospace",
-            fontWeight: 700,
-            fontSize: 22,
-            color: "#fff",
-            background: "#232b3e",
-            padding: "16px 24px 10px 24px",
-            borderBottom: "1px solid #353b4a",
-            letterSpacing: 1,
-          }}>
-          Fruit Book
-        </div>
-        <div
-          className="ag-theme-alpine"
-          style={{
-            height: 480,
-            width: "100%",
-            minWidth: 700,
-            border: "1px solid #7c5fe6",
-          }}>
+      <div className="fruit-book-panel">
+        <div className="fruit-book-header">Fruit Book</div>
+        <div className="ag-theme-alpine">
           <AgGridReact<any>
             data-testid="select-row"
             ref={gridRef}
@@ -105,7 +86,8 @@ const FruitBook = () => {
                 fontFamily: "monospace",
                 fontSize: 16,
                 color: "#f5f5f5",
-                background: params.node.rowIndex && params.node.rowIndex % 2 === 0 ? "#232b3e" : "#262f47",
+                background:
+                  params.node.rowIndex && params.node.rowIndex % 2 === 0 ? "#232b3e" : "#262f47",
               };
             }}
             suppressCellFocus={true}

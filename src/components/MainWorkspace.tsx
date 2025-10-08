@@ -87,13 +87,6 @@ export const MainWorkspace = ({
     <div
       ref={workspaceRef}
       className="main-container"
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100vh",
-        overflow: "hidden",
-        background: "var(--background-color)",
-      }}
       onDrop={handleDrop}
       onDragOver={(e) => {
         handleDragOver(e);
