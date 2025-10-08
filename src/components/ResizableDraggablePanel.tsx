@@ -139,18 +139,11 @@ const ResizableDraggablePanel = ({
       aria-label={title}
       tabIndex={0}
       style={{
-        position: "absolute",
         left: x,
         top: y,
         width: Math.max(width, minWidth),
         height: Math.max(height, minHeight),
-        background: "var(--panel-bg, #fff)",
-        borderRadius: "12px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        userSelect: "none",
-        overflow: "hidden",
         transition: isDragging || isResizing ? "none" : "transform 0.15s ease",
-        outline: "none",
       }}
       onPointerMove={(e) => {
         handlePointerMove(e);
@@ -161,58 +154,22 @@ const ResizableDraggablePanel = ({
         handleResizeUp(e);
       }}>
       {/* HEADER */}
-      <div
-        className="panel-header"
-        onPointerDown={handlePointerDown}
-        style={{
-          cursor: "grab",
-          background: "var(--panel-header-bg)",
-          color: "var(--panel-header-title-color)",
-          padding: "8px 12px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}>
+      <div className="panel-header" onPointerDown={handlePointerDown}>
         <span>{title}</span>
-        <button
-          onClick={onClose}
-          aria-label="Close panel"
-          style={{
-            border: "none",
-            background: "transparent",
-            fontSize: "16px",
-            cursor: "pointer",
-          }}>
+        <button className="panel-close-button" onClick={onClose} aria-label="Close panel">
           ✕
         </button>
       </div>
 
       {/* CONTENT */}
-      <div
-        className="panel-content"
-        style={{
-          flex: 1,
-          background: "var(--panel-body-bg)",
-          height: `calc(100% - 40px)`,
-          overflow: "auto",
-        }}>
-        {content}
-      </div>
+      <div className="panel-content">{content}</div>
 
       {/* RESIZE HANDLE */}
-      <div
-        className="resize-handle"
-        onPointerDown={handleResizeDown}
-        style={{
-          position: "absolute",
-          right: 0,
-          bottom: 0,
-          width: "14px",
-          height: "14px",
-          cursor: "nwse-resize",
-          background: "transparent",
-        }}
-      />
+      <div className="resize-handle" onPointerDown={handleResizeDown}>
+        <svg width="18" height="18">
+          <polyline points="3,15 15,15 15,3" fill="none" stroke="#7c5fe6" strokeWidth="2" />
+        </svg>
+      </div>
     </div>
   );
 };

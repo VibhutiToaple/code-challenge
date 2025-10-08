@@ -1,27 +1,8 @@
 import { PanelProps } from "../types/types";
 
 const Panel = ({ title, children }: PanelProps) => (
-  <div
-    style={{
-      background: "#232b3e",
-      borderRadius: 8,
-      boxShadow: "0 2px 8px #0003",
-      padding: 24,
-      margin: 16,
-      color: "#e0e0e0",
-      fontFamily: "monospace",
-      minWidth: 320,
-    }}>
-    <div
-      style={{
-        fontWeight: 700,
-        fontSize: 20,
-        marginBottom: 16,
-        letterSpacing: 1,
-        color: "#fff",
-      }}>
-      {title}
-    </div>
+  <div className="panel-container">
+    <div className="panel-title">{title}</div>
     <div>{children}</div>
   </div>
 );

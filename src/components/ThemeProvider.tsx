@@ -3,7 +3,8 @@ import { ConfigProvider, theme as antdTheme } from "antd";
 import { DARK, LIGHT, APP_THEME } from "@utils/constants";
 
 import { ThemeMode, ThemeContextType, ThemeProviderProps } from "../types/types";
-import "../../styles/theme.less";
+import "../../styles/theme.scss";
+import "../../styles/global.scss";
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: LIGHT,
@@ -45,7 +46,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         theme={{
           algorithm: antdAlgorithm,
           token: {
-            colorPrimary: theme === DARK ? "#81C784" : "#4CAF50",
+            colorPrimary: theme === DARK ? "#01497c" : "#3C3C3C",
             colorBgBase: theme === DARK ? "#222" : "#F5F5F5",
             colorTextBase: theme === DARK ? "#F5F5F5" : "#333",
           },

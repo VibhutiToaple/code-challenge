@@ -10,7 +10,7 @@ import { usePanels } from "@hooks/usePanels";
 import { useTheme } from "@hooks/useTheme";
 import { useInactivityLogout } from "@hooks/useInactivityLogout";
 import { useNavDrag } from "@hooks/useNavDrag";
-import { NAV_BAR_HEIGHT, GRID_COLS, GRID_ROWS } from "@utils/constants";
+import { GRID_COLS, GRID_ROWS } from "@utils/constants";
 
 const App = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -123,68 +123,49 @@ const App = () => {
         onGridDropInfo={handleGridDropInfo}
         gridRows={GRID_ROWS}
         gridCols={GRID_COLS}>
-        <main
-          style={{
-            flex: 1,
-            position: "relative",
-            background: "var(--background-color)",
-            overflow: "hidden",
-            height: "100%",
-            width: "100%",
-          }}>
+        <main className="main-workspace">
           {/* Top Nav */}
-          <header
-            style={{
-              width: "100%",
-              background: "linear-gradient(90deg, #2b3556 0%, #3e4a6b 100%)",
-              color: "#fff",
-              padding: "0.5rem 1.5rem",
-              fontWeight: 600,
-              fontSize: 20,
-              letterSpacing: 1,
-              position: "sticky",
-              top: 0,
-              zIndex: 2000,
-              display: "flex",
-              alignItems: "center",
-              boxShadow: "0 2px 8px #0002",
-              minHeight: NAV_BAR_HEIGHT,
-              borderBottom: "1px solid #3e4a6b",
-            }}>
+          <header className="app-header">
             <button
-              className="button"
+              className="nav-toggle-button"
               style={{
-                background: "transparent",
-                border: "none",
-                color: "#fff",
-                fontSize: 26,
-                cursor: "pointer",
-                marginRight: 20,
-                display: "flex",
-                alignItems: "center",
-                padding: 0,
-                height: 40,
-                width: 40,
-                borderRadius: 8,
-                transition: "background 0.2s",
                 boxShadow: navOpen ? "0 2px 8px #0002" : undefined,
               }}
               onClick={() => setNavOpen((v) => !v)}>
-              {navOpen ? "✖" : "☰"}
+              <span style={{ display: "inline-block", width: 28, height: 28 }}>
+                {navOpen ? (
+                  // X icon
+                  <svg width="28" height="28" viewBox="0 0 28 28">
+                    <line
+                      x1="7"
+                      y1="7"
+                      x2="21"
+                      y2="21"
+                      stroke="#fff"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                    <line
+                      x1="21"
+                      y1="7"
+                      x2="7"
+                      y2="21"
+                      stroke="#fff"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                ) : (
+                  // Hamburger icon
+                  <svg width="28" height="28" viewBox="0 0 28 28">
+                    <rect y="6" width="28" height="3" rx="1.5" fill="#fff" />
+                    <rect y="13" width="28" height="3" rx="1.5" fill="#fff" />
+                    <rect y="20" width="28" height="3" rx="1.5" fill="#fff" />
+                  </svg>
+                )}
+              </span>
             </button>
-            <span
-              style={{
-                fontFamily: "monospace",
-                fontWeight: 700,
-                fontSize: 22,
-                letterSpacing: 2,
-                color: "#fff",
-                textShadow: "0 1px 2px #0006",
-                userSelect: "none",
-                textTransform: "uppercase",
-              }}>
-              fruteria
-            </span>
+            <span className="app-title">fruteria</span>
             <div style={{ flex: 1 }} />
             <UserProfile
               onLogout={() => {
@@ -197,7 +178,7 @@ const App = () => {
           </header>
 
           {openPanels.length === 0 ? (
-            <div style={{ color: "#888", textAlign: "center", marginTop: "2rem" }}>
+            <div className="empty-panel-message">
               No panels open. <br /> Drag one from the navigation bar.
             </div>
           ) : (
