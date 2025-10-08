@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useWorkspaceGrid } from "@hooks/useWorkspaceGrid";
+import { ESCAPE } from "@utils/constants";
 
 import { GridDropOverlay } from "./GridDropOverlay";
 import { MainWorkspaceProps } from "../types/types";
@@ -54,7 +55,7 @@ export const MainWorkspace = ({
       setActiveCell(null);
     };
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === ESCAPE) {
         setDragging(false);
         setIsPanelDragging(false);
         setActiveCell(null);

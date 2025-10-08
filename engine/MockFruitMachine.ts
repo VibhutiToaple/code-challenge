@@ -1,8 +1,4 @@
-export type Fruit = "apple" | "banana" | "orange";
-
-export interface FruitInventory {
-  [fruit: string]: number;
-}
+import { Fruit, FruitInventory } from "../src/types/types";
 
 export class MockFruitMachine {
   private inventory: FruitInventory = {

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Form, Input, Button, Typography, Alert, Card } from "antd";
+import { constants } from "@utils/constants";
 import { mockLogin } from "@utils/mockLogin";
 
 import { LoginComponentProps } from "../types/types";
@@ -18,10 +19,10 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
         localStorage.setItem("userRole", user.role);
         onLoginSuccess?.(user);
       } else {
-        setErrorMsg("Invalid credentials");
+        setErrorMsg(constants.loginData.invalidCredentials);
       }
     } catch (err) {
-      console.warn("Form validation failed", err);
+      console.warn(constants.loginData.formValidationFailed, err);
     }
   };
 
@@ -34,17 +35,17 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
 
         <Form form={form} layout="vertical" autoComplete="off" onFinish={handleSubmit}>
           <Form.Item
-            label={<span className="login-form-label">Username</span>}
+            label={<span className="login-form-label">{constants.loginData.username}</span>}
             name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}>
-            <Input placeholder="Enter your username" autoFocus />
+            rules={[{ required: true, message: constants.loginData.usernameRequired }]}>
+            <Input placeholder={constants.loginData.usernamePlaceholder} autoFocus />
           </Form.Item>
 
           <Form.Item
-            label={<span className="login-form-label">Password</span>}
+            label={<span className="login-form-label">{constants.loginData.password}</span>}
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}>
-            <Input.Password placeholder="Enter your password" />
+            rules={[{ required: true, message: constants.loginData.passwordRequired }]}>
+            <Input.Password placeholder={constants.loginData.passwordPlaceholder} />
           </Form.Item>
 
           {errorMsg && (
@@ -67,7 +68,7 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
                 color: "#fff",
                 boxShadow: "0 2px 8px #0002",
               }}>
-              Login
+              {constants.loginData.loginButton}
             </Button>
           </Form.Item>
         </Form>

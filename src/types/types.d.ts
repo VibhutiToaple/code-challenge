@@ -112,3 +112,11 @@ interface FruitEnrichmentPanelProps {
   fruit: any;
   onClose: () => void;
 }
+
+export type Fruit = "apple" | "banana" | "orange";
+
+export interface FruitInventory {
+  [fruit: string]: number;
+}
+
+export const fruitList: Fruit[] = ["apple", "banana", "orange"];

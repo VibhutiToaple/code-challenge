@@ -9,16 +9,18 @@ import {
   List,
   message as antdMessage,
 } from "antd";
+import { constants } from "@utils/constants";
 
-import { MockFruitMachine, Fruit } from "../../engine/MockFruitMachine";
-
-const { Option } = Select;
-const { Title, Text } = Typography;
-
-const fruitList: Fruit[] = ["apple", "banana", "orange"];
-const machine = new MockFruitMachine();
+import { Fruit } from "../types/types";
+import { MockFruitMachine } from "../../engine/MockFruitMachine";
 
 export const FruitViewPanel = () => {
+  const { Option } = Select;
+  const { Title, Text } = Typography;
+
+  const fruitList: Fruit[] = ["apple", "banana", "orange"];
+  const machine = new MockFruitMachine();
+
   const [inventory, setInventory] = useState(machine.getInventory());
   const [selectedFruit, setSelectedFruit] = useState<Fruit>("apple");
   const [amount, setAmount] = useState(1);
@@ -26,48 +28,32 @@ export const FruitViewPanel = () => {
 
   const handleBuy = () => {
     if (machine.buy(selectedFruit, amount)) {
-      setMessage(`Bought ${amount} ${selectedFruit}(s).`);
-      antdMessage.success(`Bought ${amount} ${selectedFruit}(s).`);
+      setMessage(constants.fruitViewPanel.setBoughtMessage(amount.toString(), selectedFruit));
+      antdMessage.success(
+        constants.fruitViewPanel.setBoughtMessage(amount.toString(), selectedFruit)
+      );
     } else {
-      setMessage(`Not enough ${selectedFruit}s in inventory.`);
-      antdMessage.error(`Not enough ${selectedFruit}s in inventory.`);
+      setMessage(constants.fruitViewPanel.setEnoughMessage(selectedFruit));
+      antdMessage.error(constants.fruitViewPanel.setEnoughMessage(selectedFruit));
     }
     setInventory(machine.getInventory());
   };
 
   const handleSell = () => {
     machine.sell(selectedFruit, amount);
-    setMessage(`Sold ${amount} ${selectedFruit}(s).`);
-    antdMessage.info(`Sold ${amount} ${selectedFruit}(s).`);
+    setMessage(constants.fruitViewPanel.setSoldMessage(amount.toString(), selectedFruit));
+    antdMessage.info(constants.fruitViewPanel.setSoldMessage(amount.toString(), selectedFruit));
     setInventory(machine.getInventory());
   };
 
   return (
-    <div
-      className="panels"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        minHeight: "100%",
-        padding: "32px 0",
-      }}>
-      <Card
-        style={{
-          borderRadius: 12,
-          boxShadow: "0 2px 12px #0004",
-          minWidth: 350,
-          maxWidth: 400,
-          padding: 32,
-        }}>
-        <Title level={3} style={{ marginTop: 0, marginBottom: 24 }}>
-          Fruit View
+    <div className="panels">
+      <Card className="fruit-view-panel">
+        <Title className="panel-header" level={3}>
+          {constants.fruitViewPanel.header}
         </Title>
-        <Form
-          layout="inline"
-          style={{ marginBottom: 16, flexWrap: "wrap", gap: 12 }}
-          onSubmitCapture={(e) => e.preventDefault()}>
-          <Form.Item label="Fruit">
+        <Form className="fruit-form" layout="inline" onSubmitCapture={(e) => e.preventDefault()}>
+          <Form.Item label={constants.fruitViewPanel.fruitLabel}>
             <Select
               value={selectedFruit}
               onChange={(value) => setSelectedFruit(value)}
@@ -79,7 +65,7 @@ export const FruitViewPanel = () => {
               ))}
             </Select>
           </Form.Item>
-          <Form.Item label="Amount">
+          <Form.Item label={constants.fruitViewPanel.amoutLabel}>
             <InputNumber
               min={1}
               value={amount}
@@ -89,10 +75,10 @@ export const FruitViewPanel = () => {
           </Form.Item>
           <Form.Item>
             <Button className="button" type="primary" onClick={handleBuy}>
-              Buy
+              {constants.fruitViewPanel.buyButton}
             </Button>
             <Button type="default" onClick={handleSell}>
-              Sell
+              {constants.fruitViewPanel.sellButton}
             </Button>
           </Form.Item>
         </Form>
@@ -101,9 +87,9 @@ export const FruitViewPanel = () => {
             <Text
               strong
               style={{
-                color: message.startsWith("Bought")
+                color: message.startsWith(constants.fruitViewPanel.boughtLabel)
                   ? "#52c41a"
-                  : message.startsWith("Not enough")
+                  : message.startsWith(constants.fruitViewPanel.notEnoughLabel)
                     ? "#f5222d"
                     : undefined,
               }}>
@@ -112,7 +98,7 @@ export const FruitViewPanel = () => {
           )}
         </div>
         <Title level={4} style={{ marginBottom: 8 }}>
-          Inventory
+          {constants.fruitViewPanel.inventoryLabel}
         </Title>
         <List
           size="small"

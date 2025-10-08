@@ -1,4 +1,5 @@
 import { useRef, useCallback, useState, useEffect, memo, PointerEvent } from "react";
+import { ESCAPE } from "@utils/constants";
 
 import { ResizableDraggablePanelProps } from "../types/types";
 
@@ -123,7 +124,7 @@ const ResizableDraggablePanel = ({
   /** Optional: Escape key closes panel */
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !isDragging && !isResizing) {
+      if (e.key === ESCAPE && !isDragging && !isResizing) {
         onClose?.();
       }
     };
