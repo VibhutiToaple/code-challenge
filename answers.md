@@ -7,10 +7,10 @@ Estimated Time Spent
 
 | **Area** | **Description** | **Estimated Time** |
 |-----------|------------------|--------------------|
-| Component analysis & refactoring | Reviewing each React + TypeScript component (e.g., ResizableDraggablePanel, MainWorkspace, UserProfile, etc.) and refactoring for clarity, accessibility, ESLint compliance. | 4 hours |
+| Component analysis & refactoring | Reviewing each React + TypeScript component (e.g., ResizableDraggablePanel, MainWorkspace, UserProfile, etc.) and refactoring for clarity, accessibility, ESLint compliance. | 5 hours |
 | Unit testing setup and writing testcases | Writing comprehensive test cases using Vitest + React Testing Library for all components, hooks, and utils | 4 hours |
 | Test debugging & mock adjustments | Fixing async behavior, mocking DOM APIs (ResizeObserver, localStorage, etc.), stabilizing tests. | 2 hours |
-| React version 19, Replace webpack to vite, linting setup | Dependency updates, peer deps fixes, Code fixes (ReactDOM.render → createRoot, removal of React imports, etc.), Library compatibility checks (Ant Design, ag-grid, rc-*, etc.), lint/type fixups | 2 hours |
+| React version 19, Replace webpack to vite, linting setup | Dependency updates, peer deps fixes, Code fixes (ReactDOM.render → createRoot, removal of React imports, etc.), Library compatibility checks (Ant Design, ag-grid, rc-*, etc.), lint/type fixups | 1 hours |
 
 **2.	What would you add to your solution if you’d had more time?**
 
