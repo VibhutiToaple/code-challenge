@@ -49,7 +49,7 @@ export const FruitViewPanel = () => {
   return (
     <div className="panels">
       <Card className="fruit-view-panel">
-        <Title className="panel-header" level={3}>
+        <Title level={3} className="panel-header">
           {constants.fruitViewPanel.header}
         </Title>
         <Form className="fruit-form" layout="inline" onSubmitCapture={(e) => e.preventDefault()}>
