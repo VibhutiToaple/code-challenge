@@ -50,7 +50,7 @@ Integrate Vite Bundle Visualizer to monitor bundle size and identify large or un
 
 **3.	What do you think is the most useful feature added to the latest version of JS/TS?**
 
-JavaScript — RegExp.escape()
+**JavaScript — RegExp.escape()**
 
 When dynamically building regex patterns, escaping characters was painful.
 ```bash
@@ -59,7 +59,7 @@ const safePattern = new RegExp(RegExp.escape(unsafeInput));
 console.log(safePattern); // /hello\.world/
 ```
 
-TypeScript — Satisfies Operator
+**TypeScript — Satisfies Operator**
 
 Introduced earlier but still one of the most impactful TypeScript features.
 ```bash
@@ -72,7 +72,7 @@ const user = {
 } satisfies User;
 ```
 
-JavaScript — Iterator Helpers
+**JavaScript — Iterator Helpers**
 
 New built-in iterator helpers let you process any iterable lazily, similar to how arrays work but without creating intermediate arrays.
 ```bash
@@ -114,6 +114,7 @@ Next, I’d benchmark the application using Lighthouse or the Web Vitals CLI to 
 Finally, I would validate the improvements by comparing before-and-after results in Datadog or Lighthouse reports and automating performance checks in CI using Lighthouse CI and Web Vitals thresholds.
 
 a.	Have you ever had to do this?
+
 Yes, in my last project, we faced slow page routing and long load times in production.
 Using Datadog dashboards, we identified that the largest bundle was being loaded upfront, and lazy loading wasn’t properly implemented. After implementing dynamic imports and React.lazy(), we significantly improved initial load time and reduced bundle size.
 We also noticed a few unnecessary re-renders, which we fixed using React.memo and proper dependency management in hooks. The performance score improved by over 30%.
