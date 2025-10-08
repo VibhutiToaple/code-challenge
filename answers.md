@@ -3,6 +3,7 @@
 **1.	How much time did you spend on the engineering task?**
 
 I spent around 12 hours on the engineering task, which included code review, refactoring for maintainability, and building a robust test suite covering UI components, custom hooks, and utilities with near-complete code coverage.
+
 Estimated Time Spent
 
 | **Area** | **Description** | **Estimated Time** |
