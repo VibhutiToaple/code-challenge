@@ -15,10 +15,15 @@ React version 19, Replace webpack to vite, linting setup	Dependency updates, pee
 
 If I had more time, I would add the following steps:
 - State Management
+
 Right now, the state is managed at the component level using local state. To improve scalability and maintainability, I’d introduce a centralized store using Redux Toolkit or MobX. This would help manage shared states such as panel positions, user sessions, and asynchronous data (like fruits list or enrichment data) more efficiently across components.
+
 - UI/UX Enhancement
+
 I would enhance the user experience by adding smooth drag-and-drop animations and ensuring the application is mobile-friendly through responsive design. Additionally, I’d move all inline CSS into their respective SCSS files to improve readability, maintainability, and consistency.
+
 - Mock Authentication → Real Auth Integration
+
 The current mockLogin function simulates auth locally.
 Next step would be:
 Integrate with a real API using JWT or OAuth2.
@@ -27,20 +32,26 @@ Add route guards, refresh tokens, and logout flow.
 I don’t have hands-on backend experience yet, but I’m interested in implementing a real backend for authentication using Node.js. I would have done that as part of this task.
 
 - End-to-End (E2E) Tests
+
 Currently, the project has good unit test coverage using React  Testing Library, but no end-to-end (E2E) testing. I would introduce Cypress to add E2E tests that simulate real user flows, such as:
    - Login and logout functionality
    - Drag-and-drop interactions
    - Adding and removing panels
    - State persistence across page reloads
+
 - Type-Safety & Code Quality Enhancements
+
 I would strengthen TypeScript strictness by enabling rules such as noImplicitAny, and replacing all implicit any types in props and hooks with well-defined interfaces or type definitions. Additionally, I’d integrate ts-eslint along with eslint-plugin-react-refresh to proactively detect hot-reload and concurrency-related issues during development.
 To maintain consistent code quality, I’d also configure lint-staged and Husky for pre-commit linting
+
 - Performance & Bundle Analysis
+
 Integrate Vite Bundle Visualizer to monitor bundle size and identify large or unnecessary dependencies. Add React Profiler traces to measure performance improvements introduced by concurrent rendering in React 19.
 
 **3.	What do you think is the most useful feature added to the latest version of JS/TS?**
 
 JavaScript — RegExp.escape()
+
 When dynamically building regex patterns, escaping characters was painful.
 ```bash
 Ex. const unsafeInput = "hello.world";
@@ -49,6 +60,7 @@ console.log(safePattern); // /hello\.world/
 ```
 
 TypeScript — Satisfies Operator
+
 Introduced earlier but still one of the most impactful TypeScript features.
 ```bash
 Ex. type User = { id: number; name: string };
@@ -61,6 +73,7 @@ const user = {
 ```
 
 JavaScript — Iterator Helpers
+
 New built-in iterator helpers let you process any iterable lazily, similar to how arrays work but without creating intermediate arrays.
 ```bash
 Ex. // Using the new Iterator helper methods
@@ -82,6 +95,13 @@ Why it’s useful?
 - Great for streaming data or large datasets
 
 a. Include a code snippet that shows how you’ve used it.
+```bash
+export const panelList = [
+  { key: "fruitbook", title: "Fruit Book", content: <FruitBookPanel /> },
+  { key: "fruitview", title: "Fruit View", content: <FruitViewPanel /> },
+  { key: "about", title: "About", content: <AboutPanel /> },
+] satisfies PanelConfig[];
+```
 
 **4.	How would you track down a performance issue in production?**
 
