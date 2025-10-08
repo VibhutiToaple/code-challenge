@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef, ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import { fruits } from "@data/fruits";
+import { constants, dimentions } from "@utils/constants";
 
 import FruitEnrichmentPanel from "./FruitEnrichmentPanel";
 import "ag-grid-community/styles/ag-grid.css";
@@ -12,28 +13,28 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const columnDefs: ColDef[] = [
-  { headerName: "ID", field: "id", minWidth: 90 },
-  { headerName: "Fruit", field: "name", minWidth: 120 },
-  { headerName: "Country", field: "country", minWidth: 120 },
-  { headerName: "Type", field: "type", minWidth: 120 },
+  { headerName: "ID", field: "id", minWidth: dimentions.ninty },
+  { headerName: "Fruit", field: "name", minWidth: dimentions.oneTwenty },
+  { headerName: "Country", field: "country", minWidth: dimentions.oneTwenty },
+  { headerName: "Type", field: "type", minWidth: dimentions.oneTwenty },
   {
     headerName: "Status",
     field: "status",
-    minWidth: 120,
+    minWidth: dimentions.oneTwenty,
     cellStyle: (params: any) => ({
       color:
-        params.value === "Available"
+        params.value === constants.fruitBookPanel.labelAvailable
           ? "#7c5fe6"
-          : params.value === "Pending"
+          : params.value === constants.fruitBookPanel.labelPending
             ? "#ffb300"
             : "#e57373",
-      fontWeight: 700,
+      fontWeight: dimentions.sevenHundread,
       fontFamily: "monospace",
       fontSize: 16,
       background: "#232b3e",
     }),
   },
-  { headerName: "Details", field: "details", minWidth: 180 },
+  { headerName: "Details", field: "details", minWidth: dimentions.oneEighty },
 ];
 
 const defaultColDef = {
@@ -60,7 +61,7 @@ const FruitBook = () => {
   return (
     <>
       <div className="fruit-book-panel">
-        <div className="fruit-book-header">Fruit Book</div>
+        <div className="fruit-book-header">{constants.fruitBookPanel.header}</div>
         <div className="ag-theme-alpine">
           <AgGridReact<any>
             data-testid="select-row"
@@ -87,7 +88,9 @@ const FruitBook = () => {
                 fontSize: 16,
                 color: "#f5f5f5",
                 background:
-                  params.node.rowIndex && params.node.rowIndex % 2 === 0 ? "#232b3e" : "#262f47",
+                  params.node.rowIndex && params.node.rowIndex % dimentions.two === 0
+                    ? "#232b3e"
+                    : "#262f47",
               };
             }}
             suppressCellFocus={true}

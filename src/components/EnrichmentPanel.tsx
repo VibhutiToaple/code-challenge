@@ -1,12 +1,15 @@
 import { enrichmentData } from "@data/enrichmentData";
+import { constants } from "@utils/constants";
 
 import { EnrichmentPanelProps } from "../types/types";
 
 const EnrichmentPanel = ({ fruit }: EnrichmentPanelProps) => {
   return (
     <>
-      <strong>{fruit} Enrichment</strong>
-      <div style={{ marginTop: 8 }}>{enrichmentData[fruit] || "No enrichment data available."}</div>
+      <strong>
+        {fruit} {constants.enrichmentData.title}
+      </strong>
+      <div style={{ marginTop: 8 }}>{enrichmentData[fruit] || constants.enrichmentData.noData}</div>
     </>
   );
 };

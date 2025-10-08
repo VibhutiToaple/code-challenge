@@ -58,6 +58,7 @@ export default [
       "react/jsx-uses-react": "off",     
       "react/prop-types": "off",      
       "@typescript-eslint/no-unused-vars": ["warn"],
+       "unused-imports/no-unused-imports": "error",
       "import/order": [
         "warn",
         {
@@ -67,7 +68,6 @@ export default [
       ],
       "no-console": "warn",
       "@typescript-eslint/no-explicit-any": "off",
-      "unused-imports/no-unused-imports": "error",
     },
     ignores: ["node_modules", "dist", "build", "coverage", "eslint.config.js", "**/__tests__/**", "**/tests/**", "**/*.test.*", "**/*.spec.*",],
   }

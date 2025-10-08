@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Typography, Switch } from "antd";
 import { UserOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { userInfo, constants } from "@utils/constants";
 
 import { UserProfileProps, UserPopoverProps } from "../types/types";
 
@@ -46,11 +47,6 @@ const themeSwitchStyle: React.CSSProperties = {
 const UserProfile = ({ onLogout, onThemeToggle, theme }: UserProfileProps) => {
   const [visible, setVisible] = useState(false);
 
-  const userInfo = {
-    name: "User",
-    email: "user@email.com",
-  };
-
   const handleOpen = () => setVisible(true);
   const handleClose = () => setVisible(false);
 
@@ -71,7 +67,7 @@ const UserProfile = ({ onLogout, onThemeToggle, theme }: UserProfileProps) => {
       </Typography.Text>
       <div style={dividerStyle} />
       <div style={{ marginBottom: 16, fontSize: 15, color: "#b0b4c1" }}>
-        Do you want to log out?
+        {constants.loginData.doYouWantToLogout}
       </div>
       <Button
         type="primary"
@@ -81,10 +77,10 @@ const UserProfile = ({ onLogout, onThemeToggle, theme }: UserProfileProps) => {
           onCancel();
           onLogout();
         }}>
-        Log out
+        {constants.loginData.logoutButton}
       </Button>
       <Button block style={cancelButtonStyle} onClick={onCancel}>
-        Cancel
+        {constants.loginData.cancelButton}
       </Button>
 
       {onThemeToggle && (
@@ -96,7 +92,7 @@ const UserProfile = ({ onLogout, onThemeToggle, theme }: UserProfileProps) => {
             onChange={onThemeToggle}
           />
           <span style={{ marginLeft: 8, color: "#b0b4c1", fontSize: 14 }}>
-            {theme === "dark" ? "Light" : "Dark"} Theme
+            {theme === "dark" ? "Light" : "Dark"} {constants.loginData.themeToggleLabel}
           </span>
         </div>
       )}

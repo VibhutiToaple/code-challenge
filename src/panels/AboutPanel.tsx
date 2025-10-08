@@ -1,18 +1,21 @@
 /**
  * AboutPanel displays information about the application.
  */
+import { constants } from "@utils/constants";
+
 const AboutPanel = () => (
   <div className="about-panel-container">
-    <h2 className="about-panel-title">About</h2>
+    <h2 className="about-panel-title">{constants.aboutPanelData.header}</h2>
     <div className="about-panel-content">
       <p>
-        Welcome to <b>fruteria</b>!<br />
-        This is a playful trading app for fruit, built with React.
+        {constants.aboutPanelData.welcomeMessage}
+        <b>{constants.aboutPanelData.welcomeMessage1}</b>!<br />
+        {constants.aboutPanelData.welcomeMessage2}
         <br />
-        Drag panels from the sidebar to explore features.
+        {constants.aboutPanelData.welcomeMessage3}
         <br />
         <br />
-        <i>Made with 🍌 and ❤️</i>
+        <i>{constants.aboutPanelData.welcomeMessage4}</i>
       </p>
     </div>
   </div>
