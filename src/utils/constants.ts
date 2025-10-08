@@ -15,10 +15,6 @@ export const DRAG_ACTIVE = "drag-active";
 export const FRUITBOOK = "fruitbook";
 export const FRUITVIEW = "fruitview";
 export const ESCAPE = "Escape";
-export const WIDTH_90 = 90;
-export const WIDTH_120 = 120;
-export const WIDTH_180 = 180;
-export const HEIGHT_200 = 200;
 
 export const constants = {
   fruteriaName: "Fruteria",
@@ -72,6 +68,9 @@ export const constants = {
     setEnoughMessage: (selectedFruit: string) => `Not enough ${selectedFruit}s in inventory.`,
     setSoldMessage: (amount: string, selectedFruit: string) =>
       `Sold ${amount} ${selectedFruit}(s).`,
+  },
+  theme: {
+    alertMessage: "Use dark theme? OK = dark, Cancel = light.",
   },
 };
 

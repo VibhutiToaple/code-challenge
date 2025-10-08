@@ -7,8 +7,7 @@
  * @param navBarHeight Height of the navigation bar
  */
 
-const GRID_ROWS = 2;
-const GRID_COLS = 2;
+import { GRID_ROWS, GRID_COLS } from "@utils/constants";
 
 export const getGridCellPosition = (
   row: number,

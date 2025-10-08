@@ -76,11 +76,11 @@
   }
   .login-title {
     text-align: center;
-    margin-bottom: 24;
+    margin-bottom: 24px;
     color: #fff;
     font-family: monospace;
     font-weight: 700;
-    letter-spacing: 2;
+    letter-spacing: 2x;
     text-shadow: 0 1px 2px #0006;
   }
   .login-form-label {
@@ -197,13 +197,13 @@
 }
 
 .about-panel-container {
-  padding: 24;
+  padding: 24px;
   color: #000;
   font-family: monospace;
   .about-panel-title {
     color: #000;
     font-weight: 700;
-    font-size: 22;
+    font-size: 22px;
     margin: 0;
     .about-panel-content {
       margin-top: 12px;
@@ -234,8 +234,8 @@
   .ag-theme-alpine {
     width: 100%;
     background: #20263a;
-    border-radius: 10;
-    font-size: 15;
+    border-radius: 10px;
+    font-size: 15px;
     color: #e0e6f5;
   }
 }
@@ -310,14 +310,14 @@
   min-height: 100%;
   padding: 32px 0;
   .fruit-view-panel {
-    border-radius: 12;
+    border-radius: 12px;
     box-shadow: 0 2px 12px #0004;
     min-width: 350px;
     max-width: 400px;
     padding: 32px;
     .panel-header {
       margin-top: 0;
-      margin-bottom: 24;
+      margin-bottom: 24px;
     }
     .fruit-form {
       margin-bottom: 16px;
