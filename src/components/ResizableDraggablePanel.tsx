@@ -36,11 +36,6 @@ const ResizableDraggablePanel = ({
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setDragging] = useState(false);
   const [isResizing, setResizing] = useState(false);
-  //const [zIndex, setZIndex] = useState(0);
-
-  useEffect(() => {
-   // setZIndex(Date.now());
-  }, []);
 
   /** Helper: get container bounds safely */
   const getContainerBounds = useCallback(() => {

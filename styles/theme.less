@@ -2,77 +2,25 @@
 
 /* --- Light Theme --- */
 .theme-light {
-  --primary-color: #4CAF50;
-  --secondary-color: #FFC107;
+  --primary-color: #3C3C3C;
+  --secondary-color: #3C3C3C;
   --background-color: #F5F5F5;
   --text-color: #333;
   --border-radius: 4px;
   --panel-header-bg: #3C3C3C;
   --panel-header-title-color: #fff;
   --panel-body-bg: #787878;
-  --panel-border-color: #ccc;
-  --panel-shadow: rgba(0, 0, 0, 0.1);
-  --resize-handle-bg: rgba(0, 0, 0, 0);
-  --resize-handle-hover-bg: rgba(0, 0, 0, 0.2);
-  --dragging-opacity: 0.95;
-  --active-z-index: 1000;
-  --inactive-z-index: 1;
-  --button-hover-filter: brightness(0.9); /* ✅ Works at runtime */
-  --button-active-filter: brightness(0.8);
-  --transition-duration: 0.3s;
-  --transition-ease: ease;
-  --link-hover-opacity: 0.8;
-  --header-bg: #f0f0f0;
-  --header-color: #000;
-  --header-padding: 16px;
-  --header-font-size: 1.5em;
-  --button-padding: 10px 20px;
-  --button-border: none;
-  --button-border-radius: var(--border-radius);
-  --button-cursor: pointer;
-  --button-transition: filter 0.25s ease, transform 0.1s;
-  --link-text-decoration: none;
-  --link-transition: opacity 0.2s ease;
-  --header-border-radius: var(--border-radius);
-  --header-font-family: 'Segoe UI', Arial, sans-serif;
-  --header-margin: 0;
 }
 
 /* --- Dark Theme --- */
 .theme-dark {
-  --primary-color: #81C784;
-  --secondary-color: #FFD54F;
+  --primary-color: #01497c;
+  --secondary-color: #2a6f97;
   --background-color: #222;
   --text-color: #F5F5F5;
   --border-radius: 4px;
   --panel-header-bg: #01497c;
-  --panel-body-bg: #2a6f97;
-  --panel-border-color: #444;
-  --panel-shadow: rgba(0, 0, 0, 0.5);
-  --resize-handle-bg: rgba(255, 255, 255, 0.2);
-  --resize-handle-hover-bg: rgba(255, 255, 255, 0.4);
-  --dragging-opacity: 0.95;
-  --active-z-index: 1000;
-  --inactive-z-index: 1;
-  --button-hover-filter: brightness(0.9); /* ✅ Works at runtime */
-  --button-active-filter: brightness(0.8);
-  --transition-duration: 0.3s;
-  --transition-ease: ease;
-  --link-hover-opacity: 0.8;
-  --header-bg: #333;
-  --header-color: #fff;
-  --header-padding: 16px;
-  --header-font-size: 1.5em;
-  --button-padding: 10px 20px;
-  --button-border: none;
-  --button-border-radius: var(--border-radius);
-  --button-cursor: pointer;
-  --button-transition: filter 0.25s ease, transform 0.1s;
-  --link-text-decoration: none;
-  --link-transition: opacity 0.2s ease;
-  --header-border-radius: var(--border-radius);
-  --header-font-family: 'Segoe UI', Arial, sans-serif;
-  --header-margin: 0;
+  --panel-body-bg: #9ACEEB;
 }
 
 /* --- Global Styles --- */
@@ -96,7 +44,7 @@ body {
   transition: filter 0.25s ease, transform 0.1s ease;
 
   &:hover {
-    filter: brightness(0.9); /* ✅ Works at runtime */
+    background: var(--secondary-color);
     transform: translateY(-1px);
   }
 
@@ -124,4 +72,13 @@ a {
   border-radius: var(--border-radius);
   color: #fff;
   font-size: 1.5em;
+}
+.ag-theme-alpine{
+  .ag-header-viewport {
+    z-index: 0;
+  }
+}
+
+.ant-card {
+  padding: 0 !important;
 }

@@ -152,6 +152,7 @@ const App = () => {
               borderBottom: "1px solid #3e4a6b",
             }}>
             <button
+              className="button"
               style={{
                 background: "transparent",
                 border: "none",

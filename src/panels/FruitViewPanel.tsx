@@ -11,7 +11,6 @@ import {
 } from "antd";
 
 import { MockFruitMachine, Fruit } from "../../engine/MockFruitMachine";
-// Add Ant Design imports
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -89,7 +88,7 @@ export const FruitViewPanel = () => {
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" onClick={handleBuy}>
+            <Button className="button" type="primary" onClick={handleBuy}>
               Buy
             </Button>
             <Button type="default" onClick={handleSell}>

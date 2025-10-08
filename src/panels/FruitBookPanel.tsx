@@ -105,7 +105,7 @@ const FruitBook = () => {
                 fontFamily: "monospace",
                 fontSize: 16,
                 color: "#f5f5f5",
-                background: params.node.rowIndex % 2 === 0 ? "#232b3e" : "#262f47",
+                background: params.node.rowIndex && params.node.rowIndex % 2 === 0 ? "#232b3e" : "#262f47",
               };
             }}
             suppressCellFocus={true}

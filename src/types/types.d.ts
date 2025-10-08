@@ -3,9 +3,6 @@ import React, { ReactNode, JSX } from "react";
 export interface EnrichmentPanelProps {
   fruit: string;
 }
-
-export type LayoutMode = "horizontal" | "vertical" | "random";
-
 interface GridDropOverlayProps {
   rows: number;
   cols: number;
@@ -109,4 +106,9 @@ interface PanelConfig {
   key: string;
   title: string;
   content: JSX.Element;
+}
+
+interface FruitEnrichmentPanelProps {
+  fruit: any;
+  onClose: () => void;
 }

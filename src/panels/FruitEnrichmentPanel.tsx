@@ -1,32 +1,11 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
 
 import ResizableDraggablePanel from "../components/ResizableDraggablePanel";
+import { FruitEnrichmentPanelProps } from "../types/types";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-
-const gridStyle: React.CSSProperties = {
-  background: "#20263a",
-  border: "1.5px solid #2e3650",
-  borderRadius: 10,
-  padding: "18px 24px",
-  fontFamily: "monospace",
-  color: "#e0e6f5",
-  fontSize: 15,
-  minWidth: 260,
-  minHeight: 120,
-  boxShadow: "0 2px 8px #0004",
-  margin: 0,
-};
-
-/**
- * Props for FruitEnrichmentPanel.
- */
-interface FruitEnrichmentPanelProps {
-  fruit: any;
-  onClose: () => void;
-}
 
 /**
  * Displays enrichment details for a fruit in a draggable, resizable panel.
@@ -135,6 +114,7 @@ const FruitEnrichmentPanel = ({ fruit, onClose }: FruitEnrichmentPanelProps) => 
               suppressCellFocus={true}
               suppressMovableColumns={true}
               suppressMenuHide={true}
+              className="ag-grid-react"
             />
           </div>
         </div>

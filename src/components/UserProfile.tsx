@@ -4,7 +4,6 @@ import { UserOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 
 import { UserProfileProps, UserPopoverProps } from "../types/types";
 
-// Styles
 const popoverContainerStyle: React.CSSProperties = {
   minWidth: 280,
   padding: 28,

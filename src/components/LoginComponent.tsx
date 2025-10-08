@@ -80,6 +80,7 @@ const LoginComponent = ({ onLoginSuccess }: LoginComponentProps) => {
 
           <Form.Item>
             <Button
+              className="button"
               type="primary"
               htmlType="submit"
               block
