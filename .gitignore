@@ -1,13 +1,6 @@
-    # testing
-    /coverage
-
-    # Build artifacts
-    dist
-    build
-
-    # misc
-    .DS_Store
-    npm-debug.log*
-
 node_modules
 coverage
+.DS_Store
+dist
+build
+ npm-debug.log*
