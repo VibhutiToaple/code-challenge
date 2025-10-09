@@ -3,7 +3,7 @@ import { INACTIVITY_LIMIT } from "@utils/constants";
 
 export function useInactivityLogout() {
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     const resetTimer = () => {
       if (timer) clearTimeout(timer);

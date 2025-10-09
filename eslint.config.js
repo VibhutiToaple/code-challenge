@@ -12,7 +12,7 @@ import unusedImports from 'eslint-plugin-unused-imports';
 
 export default [
   {
-    ignores: ["dist", "build", "node_modules"],
+    ignores: ["dist", "build", "node_modules", "coverage"],
   },
   js.configs.recommended,
   {
