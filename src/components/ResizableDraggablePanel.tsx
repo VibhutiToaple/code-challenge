@@ -1,4 +1,5 @@
 import { useRef, useCallback, useState, useEffect, memo, PointerEvent } from "react";
+import { motion } from "framer-motion";
 import { ESCAPE } from "@utils/constants";
 
 import { ResizableDraggablePanelProps } from "../types/types";
@@ -140,7 +141,7 @@ const ResizableDraggablePanel = ({
   };
 
   return (
-    <div
+    <motion.div
       ref={panelRef}
       className={`panel ${isDragging ? "dragging" : ""}`}
       role="dialog"
@@ -161,7 +162,10 @@ const ResizableDraggablePanel = ({
         handlePointerUp(e);
         handleResizeUp(e);
       }}
-      onFocus={handleFocus}>
+      onFocus={() => onActivate?.(id)}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      initial={{ scale: 0.96, opacity: 0.8 }}
+      animate={{ scale: 1, opacity: 1 }}>
       {/* HEADER */}
       <div className="panel-header" onPointerDown={handlePointerDown}>
         <span>{title}</span>
@@ -179,7 +183,7 @@ const ResizableDraggablePanel = ({
           <polyline points="3,15 15,15 15,3" fill="none" stroke="#7c5fe6" strokeWidth="2" />
         </svg>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

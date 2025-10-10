@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
 import { dimentions, columnDefs } from "@utils/constants";
 
@@ -39,13 +39,13 @@ const FruitEnrichmentPanel = ({ fruit, onClose }: FruitEnrichmentPanelProps) => 
    * @param dx Delta X
    * @param dy Delta Y
    */
-  const handleMove = (dx: number, dy: number) => {
+  const handleMove = useCallback((dx: number, dy: number) => {
     setPanelState((prev) => ({
       ...prev,
       x: prev.x + dx,
       y: prev.y + dy,
     }));
-  };
+  }, []);
 
   /**
    * Handles resizing the panel.

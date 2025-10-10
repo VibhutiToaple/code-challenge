@@ -1,4 +1,5 @@
-import { useState, DragEvent } from "react";
+import { useState, DragEvent, useCallback, useMemo, useEffect } from "react";
+import { throttle } from "lodash-es";
 import { panelList } from "@components/panelList";
 import TermsIcon from "@assets/Icons/TermsIcon";
 import AboutIcon from "@assets/Icons/AboutIcon";
@@ -20,16 +21,29 @@ import {
   constants,
 } from "@utils/constants";
 
+import { OpenPanel } from "../types/types";
+
 const App = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [dropCell, setDropCell] = useState<{ row: number; col: number } | null>(null);
 
   const { openPanels, openPanel, closePanel, movePanel, resizePanel, activatePanel } = usePanels();
+  // create throttled versions
+  const throttledMove = useMemo(() => throttle(movePanel, 16), [movePanel]);
+  const throttledResize = useMemo(() => throttle(resizePanel, 16), [resizePanel]);
+
   const { theme, toggleTheme } = useTheme();
   const { dragNavPanelKey, onNavDragStart, onNavDragEnd } = useNavDrag();
 
   useInactivityLogout();
+
+  useEffect(() => {
+    return () => {
+      throttledMove.cancel();
+      throttledResize.cancel();
+    };
+  }, [throttledMove, throttledResize]);
 
   const handleGridDropInfo = (info: {
     cell: { row: number; col: number } | null;
@@ -47,6 +61,20 @@ const App = () => {
   };
 
   const onMainDragOver = (e: DragEvent<HTMLDivElement>) => e.preventDefault();
+
+  const renderPanel = useCallback(
+    (panel: OpenPanel) => (
+      <ResizableDraggablePanel
+        key={panel.id}
+        {...panel}
+        onClose={() => closePanel(panel.id)}
+        onMove={(dx, dy) => throttledMove(panel.id, dx, dy)}
+        onResize={(dw, dh) => throttledResize(panel.id, dw, dh)}
+        onActivate={() => activatePanel(panel.id)}
+      />
+    ),
+    [closePanel, movePanel, resizePanel, activatePanel]
+  );
 
   return (
     <div className={`app-root theme-${theme}`}>
@@ -145,16 +173,7 @@ const App = () => {
               {constants.emptyPanelMessage.title} <br /> {constants.emptyPanelMessage.description}
             </div>
           ) : (
-            openPanels.map((panel) => (
-              <ResizableDraggablePanel
-                key={panel.id}
-                {...panel}
-                onClose={() => closePanel(panel.id)}
-                onMove={(dx, dy) => movePanel(panel.id, dx, dy)}
-                onResize={(dw, dh) => resizePanel(panel.id, dw, dh)}
-                onActivate={() => activatePanel(panel.id)}
-              />
-            ))
+            openPanels.map((panel) => renderPanel(panel))
           )}
         </main>
       </MainWorkspace>
