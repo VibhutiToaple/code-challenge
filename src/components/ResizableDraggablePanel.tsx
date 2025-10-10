@@ -12,6 +12,7 @@ import { ResizableDraggablePanelProps } from "../types/types";
  * @param {ResizableDraggablePanelProps} props
  */
 const ResizableDraggablePanel = ({
+  id,
   title,
   content,
   x,
@@ -23,6 +24,7 @@ const ResizableDraggablePanel = ({
   onClose,
   onMove,
   onResize,
+  onActivate,
 }: ResizableDraggablePanelProps) => {
   const dragOrigin = useRef<{ x: number; y: number } | null>(null);
   const resizeOrigin = useRef<{
@@ -47,6 +49,7 @@ const ResizableDraggablePanel = ({
   /** === DRAG LOGIC === */
   const handlePointerDown = useCallback((e: PointerEvent) => {
     e.stopPropagation();
+    if (onActivate) onActivate(id);
     dragOrigin.current = { x: e.clientX, y: e.clientY };
     setDragging(true);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -132,6 +135,10 @@ const ResizableDraggablePanel = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDragging, isResizing, onClose]);
 
+  const handleFocus = () => {
+    if (onActivate) onActivate(id);
+  };
+
   return (
     <div
       ref={panelRef}
@@ -153,7 +160,8 @@ const ResizableDraggablePanel = ({
       onPointerUp={(e) => {
         handlePointerUp(e);
         handleResizeUp(e);
-      }}>
+      }}
+      onFocus={handleFocus}>
       {/* HEADER */}
       <div className="panel-header" onPointerDown={handlePointerDown}>
         <span>{title}</span>

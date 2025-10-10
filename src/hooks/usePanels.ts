@@ -63,5 +63,16 @@ export function usePanels() {
     );
   };
 
-  return { openPanels, openPanel, closePanel, movePanel, resizePanel };
+  const activatePanel = (id: string) => {
+    setOpenPanels((prev) => {
+      const idx = prev.findIndex((p) => p.id === id);
+      if (idx === -1) return prev;
+      // move selected panel to the end of the array (rendered on top)
+      const panel = prev[idx];
+      const others = prev.filter((p) => p.id !== id);
+      return [...others, panel];
+    });
+  };
+
+  return { openPanels, openPanel, closePanel, movePanel, resizePanel, activatePanel };
 }
