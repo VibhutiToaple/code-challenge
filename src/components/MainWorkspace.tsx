@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useWorkspaceGrid } from "@hooks/useWorkspaceGrid";
 import { ESCAPE } from "@utils/constants";
-
+import PanelStack from "@components/PanelStack";
 import { GridDropOverlay } from "./GridDropOverlay";
 import { MainWorkspaceProps } from "../types/types";
 
@@ -104,6 +104,7 @@ export const MainWorkspace = ({
           activeColor: "#007acc",
         }}
       />
+      
     </div>
   );
 };

@@ -1,0 +1,803 @@
+--- a/src/hooks/usePanels.ts
++++ b/src/hooks/usePanels.ts
+@@ -0,0 +1,155 @@
++// src/hooks/usePanels.ts
++import { useCallback, useEffect, useReducer } from "react";
++import { panelList } from "@components/panelList";
++import { getGridCellPosition } from "@utils/grid";
++import { NAV_BAR_HEIGHT } from "@utils/constants";
++import type { OpenPanel } from "../types/types";
++
++/**
++ * Panels reducer actions & state
++ */
++type PanelsState = OpenPanel[];
++
++type PanelsAction =
++  | { type: "OPEN_PANEL"; payload: OpenPanel }
++  | { type: "CLOSE_PANEL"; payload: { id: string } }
++  | { type: "MOVE_PANEL"; payload: { id: string; dx: number; dy: number } }
++  | { type: "SET_PANEL_POS"; payload: { id: string; x: number; y: number } }
++  | { type: "SET_PANEL_SIZE"; payload: { id: string; width: number; height: number } }
++  | { type: "BRING_TO_FRONT"; payload: { id: string } }
++  | { type: "REMOVE_ALL" };
++
++const PANELS_STORAGE_KEY = "app_panels_v1";
++
++function panelsReducer(state: PanelsState, action: PanelsAction): PanelsState {
++  switch (action.type) {
++    case "OPEN_PANEL":
++      return [...state, action.payload];
++    case "CLOSE_PANEL":
++      return state.filter((p) => p.id !== action.payload.id);
++    case "MOVE_PANEL":
++      return state.map((p) =>
++        p.id === action.payload.id ? { ...p, x: p.x + action.payload.dx, y: p.y + action.payload.dy } : p
++      );
++    case "SET_PANEL_POS":
++      return state.map((p) => (p.id === action.payload.id ? { ...p, x: action.payload.x, y: action.payload.y } : p));
++    case "SET_PANEL_SIZE":
++      return state.map((p) =>
++        p.id === action.payload.id ? { ...p, width: action.payload.width, height: action.payload.height } : p
++      );
++    case "BRING_TO_FRONT": {
++      // bring selected panel to end of array (highest z-index if you render on order)
++      const target = state.find((p) => p.id === action.payload.id);
++      if (!target) return state;
++      return [...state.filter((p) => p.id !== action.payload.id), target];
++    }
++    case "REMOVE_ALL":
++      return [];
++    default:
++      return state;
++  }
++}
++
++/**
++ * Custom hook using reducer to manage panels.
++ * Exposes a stable API similar to the previous hook but driven by actions.
++ */
++export function usePanels() {
++  // load initial from localStorage if present
++  const initial = (() => {
++    try {
++      const raw = localStorage.getItem(PANELS_STORAGE_KEY);
++      if (raw) {
++        const parsed = JSON.parse(raw) as PanelsState;
++        // basic validation could go here
++        return parsed;
++      }
++    } catch {
++      // ignore parse errors
++    }
++    return [] as PanelsState;
++  })();
++
++  const [state, dispatch] = useReducer(panelsReducer, initial);
++
++  // persist panels (debounced-ish by using effect — updates on each change; you can throttle if you like)
++  useEffect(() => {
++    try {
++      localStorage.setItem(PANELS_STORAGE_KEY, JSON.stringify(state));
++    } catch {
++      /* ignore storage errors */
++    }
++  }, [state]);
++
++  // API functions
++
++  const openPanel = useCallback(
++    (
++      key: string,
++      dropCell: { row: number; col: number } | null,
++      containerSize: { width: number; height: number }
++    ) => {
++      const panelDef = panelList.find((p) => p.key === key);
++      if (!panelDef) return;
++
++      const id = `${key}-${Date.now()}`;
++      let x = 60,
++        y = NAV_BAR_HEIGHT + 10,
++        width = 700,
++        height = 420;
++
++      if (dropCell && containerSize.width && containerSize.height) {
++        const availableHeight = containerSize.height - NAV_BAR_HEIGHT;
++        const pos = getGridCellPosition(dropCell.row, dropCell.col, containerSize.width, availableHeight, NAV_BAR_HEIGHT);
++        width = Math.min(pos.width, containerSize.width);
++        height = Math.min(pos.height, availableHeight);
++        x = pos.x;
++        y = pos.y;
++      }
++
++      const panel: OpenPanel = {
++        id,
++        title: panelDef.title,
++        content: panelDef.content,
++        x,
++        y,
++        width,
++        height,
++      };
++
++      dispatch({ type: "OPEN_PANEL", payload: panel });
++    },
++    []
++  );
++
++  const closePanel = useCallback((id: string) => dispatch({ type: "CLOSE_PANEL", payload: { id } }), []);
++
++  const movePanel = useCallback((id: string, dx: number, dy: number) => {
++    dispatch({ type: "MOVE_PANEL", payload: { id, dx, dy } });
++  }, []);
++
++  // commit absolute position (better for finalizing after transient drag)
++  const setPanelPosition = useCallback((id: string, x: number, y: number) => {
++    dispatch({ type: "SET_PANEL_POS", payload: { id, x, y } });
++  }, []);
++
++  const resizePanelCommit = useCallback((id: string, width: number, height: number) => {
++    dispatch({ type: "SET_PANEL_SIZE", payload: { id, width, height } });
++  }, []);
++
++  const bringToFront = useCallback((id: string) => dispatch({ type: "BRING_TO_FRONT", payload: { id } }), []);
++
++  // convenience: remove all panels (useful for tests)
++  const removeAll = useCallback(() => dispatch({ type: "REMOVE_ALL" }), []);
++
++  return {
++    openPanels: state,
++    openPanel,
++    closePanel,
++    movePanel,
++    setPanelPosition,
++    resizePanelCommit,
++    bringToFront,
++    removeAll,
++  };
++}
+
+--- a/src/components/ResizableDraggablePanel.tsx
++++ b/src/components/ResizableDraggablePanel.tsx
+@@ -1,176 +1,274 @@
+-import { useRef, useCallback, useState, useEffect, memo, PointerEvent } from "react";
++// src/components/ResizableDraggablePanel.tsx
++import React, { useRef, useEffect, memo } from "react";
+ import { ESCAPE } from "@utils/constants";
+-
+ import { ResizableDraggablePanelProps } from "../types/types";
+ 
+ /**
+- * A draggable and resizable panel component.
+- * - Supports mouse and touch via pointer events.
+- * - Prevents overflow beyond parent container.
+- * - Provides min/max resize boundaries.
++ * ResizableDraggablePanel - optimized dragging/resizing.
+  *
+- * @param {ResizableDraggablePanelProps} props
++ * Key behaviors:
++ * - While dragging/resizing we update the DOM via transform/inline width/height using requestAnimationFrame
++ *   to avoid frequent React re-renders and layout thrash.
++ * - On pointerup we call the commit handlers (onCommitPosition / onCommitResize) to update canonical state.
++ *
++ * Props of interest added:
++ * - freeform?: boolean  -> when true, panel is absolutely positioned and can be freely dragged.
++ * - onCommitPosition?: (x, y) => void  -> commit absolute position after drag ends
++ * - onCommitResize?: (width, height) => void -> commit size after resizing ends
++ *
++ * The component will still render using `left/top` (x/y) from props as the canonical baseline.
+  */
+-const ResizableDraggablePanel = ({
++const ResizableDraggablePanel: React.FC<ResizableDraggablePanelProps & {
++  freeform?: boolean;
++  onCommitPosition?: (x: number, y: number) => void;
++  onCommitResize?: (width: number, height: number) => void;
++}> = ({
++  id,
+   title,
+   content,
+-  x,
+-  y,
+-  width,
+-  height,
++  x = 0,
++  y = 0,
++  width = 320,
++  height = 240,
+   minWidth = 150,
+   minHeight = 100,
+   onClose,
+-  onMove,
+-  onResize,
+-}: ResizableDraggablePanelProps) => {
+-  const dragOrigin = useRef<{ x: number; y: number } | null>(null);
+-  const resizeOrigin = useRef<{
+-    x: number;
+-    y: number;
+-    w: number;
+-    h: number;
+-    maxW: number;
+-    maxH: number;
+-  } | null>(null);
+-
+-  const panelRef = useRef<HTMLDivElement | null>(null);
+-  const [isDragging, setDragging] = useState(false);
+-  const [isResizing, setResizing] = useState(false);
+-
+-  /** Helper: get container bounds safely */
+-  const getContainerBounds = useCallback(() => {
+-    const parent = panelRef.current?.closest(".main-container") as HTMLElement | null;
+-    return parent?.getBoundingClientRect();
++  onMove, // we still accept but we won't call every frame by default
++  onResize, // accepted but not required
++  freeform = false,
++  zIndex = 1,
++  style,
++  onCommitPosition,
++  onCommitResize,
++}) => {
++  const rootRef = useRef<HTMLDivElement | null>(null);
++
++  // ephemeral delta while dragging/resizing (not in React state)
++  const dragState = useRef<{ active: boolean; startX: number; startY: number; baseX: number; baseY: number; tx: number; ty: number } | null>(null);
++  const resizeState = useRef<{ active: boolean; startX: number; startY: number; baseW: number; baseH: number; tw: number; th: number } | null>(null);
++
++  const rafRef = useRef<number | null>(null);
++
++  // apply ephemeral transform / inline size
++  const applyFrame = () => {
++    rafRef.current = null;
++    const el = rootRef.current;
++    if (!el) return;
++
++    if (dragState.current && dragState.current.active) {
++      const tx = dragState.current.tx;
++      const ty = dragState.current.ty;
++      el.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
++      el.style.willChange = "transform";
++    } else {
++      // no drag active -> clear transform
++      el.style.transform = "";
++      el.style.willChange = "";
++    }
++
++    if (resizeState.current && resizeState.current.active) {
++      // apply inline width/height (ephemeral)
++      el.style.width = `${resizeState.current.tw}px`;
++      el.style.height = `${resizeState.current.th}px`;
++    } else {
++      // restore canonical size
++      el.style.width = `${width}px`;
++      el.style.height = `${height}px`;
++    }
++  };
++
++  const scheduleFrame = () => {
++    if (rafRef.current == null) {
++      rafRef.current = requestAnimationFrame(applyFrame);
++    }
++  };
++
++  // start drag
++  const onHeaderPointerDown = (e: React.PointerEvent) => {
++    if (!freeform) return; // only allow freeform dragging in cha-cha mode
++    e.stopPropagation();
++    (e.target as Element).setPointerCapture(e.pointerId);
++
++    dragState.current = {
++      active: true,
++      startX: e.clientX,
++      startY: e.clientY,
++      baseX: x,
++      baseY: y,
++      tx: 0,
++      ty: 0,
++    };
++
++    // attach document-level listeners
++    document.addEventListener("pointermove", onDocPointerMove);
++    document.addEventListener("pointerup", onDocPointerUp);
++  };
++
++  const onResizeHandleDown = (e: React.PointerEvent) => {
++    e.stopPropagation();
++    (e.target as Element).setPointerCapture(e.pointerId);
++    resizeState.current = {
++      active: true,
++      startX: e.clientX,
++      startY: e.clientY,
++      baseW: width,
++      baseH: height,
++      tw: width,
++      th: height,
++    };
++
++    document.addEventListener("pointermove", onDocPointerMove);
++    document.addEventListener("pointerup", onDocPointerUp);
++  };
++
++  const onDocPointerMove = (ev: PointerEvent) => {
++    if (dragState.current?.active) {
++      const s = dragState.current;
++      s.tx = ev.clientX - s.startX;
++      s.ty = ev.clientY - s.startY;
++      // schedule DOM update
++      scheduleFrame();
++    } else if (resizeState.current?.active) {
++      const r = resizeState.current;
++      const dw = ev.clientX - r.startX;
++      const dh = ev.clientY - r.startY;
++      r.tw = Math.max(minWidth, Math.round(r.baseW + dw));
++      r.th = Math.max(minHeight, Math.round(r.baseH + dh));
++      scheduleFrame();
++    }
++  };
++
++  const onDocPointerUp = (ev: PointerEvent) => {
++    // finalize drag
++    if (dragState.current?.active) {
++      const s = dragState.current;
++      const finalX = Math.round(s.baseX + s.tx);
++      const finalY = Math.round(s.baseY + s.ty);
++      // clear transform and commit final coordinates
++      const el = rootRef.current;
++      if (el) {
++        el.style.transform = "";
++        el.style.left = `${finalX}px`;
++        el.style.top = `${finalY}px`;
++      }
++      // call commit callback if provided
++      if (typeof onCommitPosition === "function") onCommitPosition(finalX, finalY);
++      else if (typeof onMove === "function") onMove(finalX - s.baseX, finalY - s.baseY); // fallback
++      dragState.current = null;
++    }
++
++    // finalize resize
++    if (resizeState.current?.active) {
++      const r = resizeState.current;
++      const finalW = Math.max(minWidth, Math.round(r.tw));
++      const finalH = Math.max(minHeight, Math.round(r.th));
++      const el = rootRef.current;
++      if (el) {
++        el.style.width = `${finalW}px`;
++        el.style.height = `${finalH}px`;
++      }
++      if (typeof onCommitResize === "function") onCommitResize(finalW, finalH);
++      else if (typeof onResize === "function") onResize(finalW - width, finalH - height);
++      resizeState.current = null;
++    }
++
++    // cleanup listeners
++    document.removeEventListener("pointermove", onDocPointerMove);
++    document.removeEventListener("pointerup", onDocPointerUp);
++
++    if (rafRef.current != null) {
++      cancelAnimationFrame(rafRef.current);
++      rafRef.current = null;
++    }
++  };
++
++  // Clean up if unmounted mid-drag
++  useEffect(() => {
++    return () => {
++      document.removeEventListener("pointermove", onDocPointerMove);
++      document.removeEventListener("pointerup", onDocPointerUp);
++      if (rafRef.current != null) {
++        cancelAnimationFrame(rafRef.current);
++        rafRef.current = null;
++      }
++    };
++    // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
+ 
+-  /** === DRAG LOGIC === */
+-  const handlePointerDown = useCallback((e: PointerEvent) => {
+-    e.stopPropagation();
+-    dragOrigin.current = { x: e.clientX, y: e.clientY };
+-    setDragging(true);
+-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+-  }, []);
+-
+-  const handlePointerMove = useCallback(
+-    (e: PointerEvent) => {
+-      if (!isDragging || !dragOrigin.current) return;
+-
+-      const bounds = getContainerBounds();
+-      if (!bounds) return;
+-
+-      const dx = e.clientX - dragOrigin.current.x;
+-      const dy = e.clientY - dragOrigin.current.y;
+-
+-      const newX = Math.max(0, Math.min(x + dx, bounds.width - width));
+-      const newY = Math.max(0, Math.min(y + dy, bounds.height - height));
+-
+-      onMove(newX - x, newY - y);
+-      dragOrigin.current = { x: e.clientX, y: e.clientY };
+-    },
+-    [isDragging, onMove, x, y, width, height, getContainerBounds]
+-  );
+-
+-  const handlePointerUp = useCallback((e: PointerEvent) => {
+-    setDragging(false);
+-    dragOrigin.current = null;
+-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+-  }, []);
+-
+-  /** === RESIZE LOGIC === */
+-  const handleResizeDown = useCallback(
+-    (e: PointerEvent) => {
+-      e.stopPropagation();
+-      const bounds = getContainerBounds();
+-      if (!bounds) return;
+-
+-      resizeOrigin.current = {
+-        x: e.clientX,
+-        y: e.clientY,
+-        w: width,
+-        h: height,
+-        maxW: bounds.width - x,
+-        maxH: bounds.height - y,
+-      };
+-
+-      setResizing(true);
+-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+-    },
+-    [width, height, x, y, getContainerBounds]
+-  );
+-
+-  const handleResizeMove = useCallback(
+-    (e: PointerEvent) => {
+-      if (!isResizing || !resizeOrigin.current) return;
+-
+-      const { x: startX, y: startY, w, h, maxW, maxH } = resizeOrigin.current;
+-      const dw = e.clientX - startX;
+-      const dh = e.clientY - startY;
+-
+-      const newWidth = Math.min(Math.max(w + dw, minWidth), maxW);
+-      const newHeight = Math.min(Math.max(h + dh, minHeight), maxH);
+-
+-      onResize(newWidth - width, newHeight - height);
+-    },
+-    [isResizing, onResize, minWidth, minHeight, width, height]
+-  );
+-
+-  const handleResizeUp = useCallback((e: PointerEvent) => {
+-    setResizing(false);
+-    resizeOrigin.current = null;
+-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+-  }, []);
+-
+-  /** Optional: Escape key closes panel */
++  // Escape cancels active operations (stop ephemeral states)
+   useEffect(() => {
+-    const handleKeyDown = (e: KeyboardEvent) => {
+-      if (e.key === ESCAPE && !isDragging && !isResizing) {
+-        onClose?.();
+-      }
+-    };
+-    window.addEventListener("keydown", handleKeyDown);
+-    return () => window.removeEventListener("keydown", handleKeyDown);
+-  }, [isDragging, isResizing, onClose]);
++    const onKey = (ev: KeyboardEvent) => {
++      if (ev.key === ESCAPE) {
++        dragState.current = null;
++        resizeState.current = null;
++        // clear styles
++        const el = rootRef.current;
++        if (el) {
++          el.style.transform = "";
++          el.style.width = `${width}px`;
++          el.style.height = `${height}px`;
++        }
++      }
++    };
++    window.addEventListener("keydown", onKey);
++    return () => window.removeEventListener("keydown", onKey);
++  }, [width, height]);
++
++  const containerStyle: React.CSSProperties = {
++    position: freeform ? "absolute" : "relative",
++    left: freeform ? `${x}px` : undefined,
++    top: freeform ? `${y}px` : undefined,
++    width: `${width}px`,
++    height: `${height}px`,
++    background: "#fff",
++    border: "1px solid #ddd",
++    borderRadius: 8,
++    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
++    overflow: "hidden",
++    userSelect: "none",
++    touchAction: "none",
++    zIndex,
++    ...style,
++  };
+ 
+   return (
+-    <div
+-      ref={panelRef}
+-      className={`panel ${isDragging ? "dragging" : ""}`}
+-      role="dialog"
+-      aria-label={title}
+-      tabIndex={0}
+-      style={{
+-        left: x,
+-        top: y,
+-        width: Math.max(width, minWidth),
+-        height: Math.max(height, minHeight),
+-        transition: isDragging || isResizing ? "none" : "transform 0.15s ease",
+-      }}
+-      onPointerMove={(e) => {
+-        handlePointerMove(e);
+-        handleResizeMove(e);
+-      }}
+-      onPointerUp={(e) => {
+-        handlePointerUp(e);
+-        handleResizeUp(e);
+-      }}>
+-      {/* HEADER */}
+-      <div className="panel-header" onPointerDown={handlePointerDown}>
+-        <span>{title}</span>
+-        <button className="panel-close-button" onClick={onClose} aria-label="Close panel">
+-          ✕
+-        </button>
++    <div ref={rootRef} style={containerStyle}>
++      <div
++        onPointerDown={onHeaderPointerDown}
++        style={{
++          background: "#f6f7fb",
++          padding: "8px 10px",
++          cursor: freeform ? "grab" : "default",
++          display: "flex",
++          justifyContent: "space-between",
++          alignItems: "center",
++          fontWeight: 600,
++        }}
++      >
++        <div>{title}</div>
++        <div style={{ display: "flex", gap: 8 }}>
++          {onClose && (
++            <button onClick={onClose} style={{ cursor: "pointer", border: "none", background: "transparent" }}>
++              ✕
++            </button>
++          )}
++        </div>
+       </div>
+ 
+-      {/* CONTENT */}
+-      <div className="panel-content">{content}</div>
+-
+-      {/* RESIZE HANDLE */}
+-      <div className="resize-handle" onPointerDown={handleResizeDown}>
+-        <svg width="18" height="18">
+-          <polyline points="3,15 15,15 15,3" fill="none" stroke="#7c5fe6" strokeWidth="2" />
+-        </svg>
+-      </div>
++      <div style={{ padding: 10, height: `calc(100% - 40px)`, overflow: "auto" }}>{content}</div>
++
++      <div
++        onPointerDown={onResizeHandleDown}
++        style={{
++          position: "absolute",
++          right: 0,
++          bottom: 0,
++          width: 18,
++          height: 18,
++          cursor: "se-resize",
++          background: "transparent",
++        }}
++      />
+     </div>
+   );
+ };
+
+--- a/src/app/App.tsx
++++ b/src/app/App.tsx
+@@ -1,8 +1,6 @@
+-import { useState, DragEvent } from "react";
++// src/app/App.tsx
++import React, { useState, DragEvent } from "react";
+ import { panelList } from "@components/panelList";
+-import TermsIcon from "@assets/Icons/TermsIcon";
+-import AboutIcon from "@assets/Icons/AboutIcon";
+-import FruitViewIcon from "@assets/Icons/FruitViewIcon";
+ import ResizableDraggablePanel from "@components/ResizableDraggablePanel";
+ import { MainWorkspace } from "@components/MainWorkspace";
+ import UserProfile from "@components/UserProfile";
+@@ -10,31 +8,33 @@
+ import { useTheme } from "@hooks/useTheme";
+ import { useInactivityLogout } from "@hooks/useInactivityLogout";
+ import { useNavDrag } from "@hooks/useNavDrag";
+-import {
+-  GRID_COLS,
+-  GRID_ROWS,
+-  PANEL_KEY,
+-  DRAG_ACTIVE,
+-  FRUITBOOK,
+-  FRUITVIEW,
+-  constants,
+-} from "@utils/constants";
++import { GRID_COLS, GRID_ROWS, PANEL_KEY, NAV_BAR_HEIGHT } from "@utils/constants";
+ 
+-const App = () => {
++/**
++ * Main App: renders nav + MainWorkspace + panels.
++ * Uses the new panels reducer hook from src/hooks/usePanels.ts
++ */
++const App: React.FC = () => {
+   const [navOpen, setNavOpen] = useState(false);
+   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+   const [dropCell, setDropCell] = useState<{ row: number; col: number } | null>(null);
+ 
+-  const { openPanels, openPanel, closePanel, movePanel, resizePanel } = usePanels();
+-  const { theme, toggleTheme } = useTheme();
++  const {
++    openPanels,
++    openPanel,
++    closePanel,
++    movePanel,
++    setPanelPosition,
++    resizePanelCommit,
++    bringToFront,
++  } = usePanels();
++
+   const { dragNavPanelKey, onNavDragStart, onNavDragEnd } = useNavDrag();
+-
++  const { theme } = useTheme();
+   useInactivityLogout();
+ 
+-  const handleGridDropInfo = (info: {
+-    cell: { row: number; col: number } | null;
+-    size: { width: number; height: number };
+-  }) => {
++  // Callback from workspace when grid hover changes (the hook wires it)
++  const handleGridDropInfo = (info: { cell: { row: number; col: number } | null; size: { width: number; height: number } }) => {
+     setDropCell(info.cell);
+     setContainerSize(info.size);
+   };
+@@ -50,111 +50,30 @@
+ 
+   return (
+     <div className={`app-root theme-${theme}`}>
+-      {navOpen && (
+-        <nav className="side-nav">
+-          <ul className="nav-panel-list">
+-            {panelList.map((panel) => (
+-              <li
+-                key={panel.key}
+-                style={{
+-                  background: dragNavPanelKey === panel.key ? "#353b4a" : undefined,
+-                }}
+-                draggable
+-                onDragStart={onNavDragStart(panel.key)}
+-                onDragEnd={onNavDragEnd}
+-                className={`nav-panel-item ${dragNavPanelKey === panel.key ? DRAG_ACTIVE : ""}`}
+-                title={panel.title}>
+-                <span className="nav-panel-icon">
+-                  {panel.key === FRUITBOOK ? (
+-                    <TermsIcon />
+-                  ) : panel.key === FRUITVIEW ? (
+-                    <FruitViewIcon />
+-                  ) : (
+-                    <AboutIcon />
+-                  )}
+-                </span>
+-                <span className="nav-panel-title">{panel.title}</span>
+-              </li>
+-            ))}
+-          </ul>
+-        </nav>
+-      )}
++      <header style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, background: "#fff" }}>
++        <div style={{ fontWeight: 700 }}>Fruit App</div>
+ 
+-      <MainWorkspace
+-        onDrop={onMainDrop}
+-        onDragOver={onMainDragOver}
+-        onGridDropInfo={handleGridDropInfo}
+-        gridRows={GRID_ROWS}
+-        gridCols={GRID_COLS}>
+-        <main className="main-workspace">
+-          {/* Top Nav */}
+-          <header className="app-header">
+-            <button
+-              className="nav-toggle-button"
+-              style={{
+-                boxShadow: navOpen ? "0 2px 8px #0002" : undefined,
+-              }}
+-              onClick={() => setNavOpen((v) => !v)}>
+-              <span className="nav-toggle-icon">
+-                {navOpen ? (
+-                  // X icon
+-                  <svg width="28" height="28" viewBox="0 0 28 28">
+-                    <line
+-                      x1="7"
+-                      y1="7"
+-                      x2="21"
+-                      y2="21"
+-                      stroke="#fff"
+-                      strokeWidth="2.5"
+-                      strokeLinecap="round"
+-                    />
+-                    <line
+-                      x1="21"
+-                      y1="7"
+-                      x2="7"
+-                      y2="21"
+-                      stroke="#fff"
+-                      strokeWidth="2.5"
+-                      strokeLinecap="round"
+-                    />
+-                  </svg>
+-                ) : (
+-                  // Hamburger icon
+-                  <svg width="28" height="28" viewBox="0 0 28 28">
+-                    <rect y="6" width="28" height="3" rx="1.5" fill="#fff" />
+-                    <rect y="13" width="28" height="3" rx="1.5" fill="#fff" />
+-                    <rect y="20" width="28" height="3" rx="1.5" fill="#fff" />
+-                  </svg>
+-                )}
+-              </span>
+-            </button>
+-            <span className="app-title">{constants.fruteriaName}</span>
+-            <div style={{ flex: 1 }} />
+-            <UserProfile
+-              onLogout={() => {
+-                localStorage.removeItem("isLoggedIn");
+-                window.dispatchEvent(new Event("login-success"));
+-              }}
+-              onThemeToggle={toggleTheme}
+-              theme={theme}
++        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
++          <UserProfile />
++        </div>
++      </header>
++
++      <MainWorkspace onGridDropInfo={handleGridDropInfo} onDrop={onMainDrop} onDragOver={onMainDragOver} gridRows={GRID_ROWS} gridCols={GRID_COLS}>
++        <main style={{ width: "100%", height: "calc(100vh - 64px)" }}>
++          {openPanels.map((panel) => (
++            <ResizableDraggablePanel
++              key={panel.id}
++              {...panel}
++              freeform={true} // keep freeform true so panels can be moved; you can change based on layout
++              onClose={() => closePanel(panel.id)}
++              // We commit final position/size on pointerup via setPanelPosition / resizePanelCommit
++              onCommitPosition={(nx, ny) => setPanelPosition(panel.id, nx, ny)}
++              onCommitResize={(nw, nh) => resizePanelCommit(panel.id, nw, nh)}
++              onMove={(dx, dy) => movePanel(panel.id, dx, dy)}
++              // bring to front on pointer down / focus - optional
++              onActivate={() => bringToFront(panel.id)}
+             />
+-          </header>
+-
+-          {openPanels.length === 0 ? (
+-            <div className="empty-panel-message">
+-              {constants.emptyPanelMessage.title} <br /> {constants.emptyPanelMessage.description}
+-            </div>
+-          ) : (
+-            openPanels.map((panel) => (
+-              <ResizableDraggablePanel
+-                key={panel.id}
+-                {...panel}
+-                onClose={() => closePanel(panel.id)}
+-                onMove={(dx, dy) => movePanel(panel.id, dx, dy)}
+-                onResize={(dw, dh) => resizePanel(panel.id, dw, dh)}
+-              />
+-            ))
+-          )}
++          ))}
+         </main>
+       </MainWorkspace>
+     </div>
+
+--- a/src/types/types.d.ts
++++ b/src/types/types.d.ts
+@@ -54,6 +54,9 @@
+   onClose: () => void;
+   onMove: (dx: number, dy: number) => void;
+   onResize: (dw: number, dh: number) => void;
++  freeform?: boolean;
++  onCommitPosition?: (x: number, y: number) => void;
++  onCommitResize?: (width: number, height: number) => void;
+   onActivate?: (id?: string) => void;
+   style?: React.CSSProperties;
+   onFocus?: () => void;

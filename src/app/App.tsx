@@ -25,7 +25,7 @@ const App = () => {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [dropCell, setDropCell] = useState<{ row: number; col: number } | null>(null);
 
-  const { openPanels, openPanel, closePanel, movePanel, resizePanel } = usePanels();
+  const { openPanels, openPanel, closePanel, movePanel, resizePanel, activatePanel } = usePanels();
   const { theme, toggleTheme } = useTheme();
   const { dragNavPanelKey, onNavDragStart, onNavDragEnd } = useNavDrag();
 
@@ -152,6 +152,7 @@ const App = () => {
                 onClose={() => closePanel(panel.id)}
                 onMove={(dx, dy) => movePanel(panel.id, dx, dy)}
                 onResize={(dw, dh) => resizePanel(panel.id, dw, dh)}
+                onActivate={() => activatePanel(panel.id)}
               />
             ))
           )}
