@@ -1,0 +1,301 @@
+--- a/src/hooks/usePanels.ts
++++ b/src/hooks/usePanels.ts
+@@ -6,89 +6,144 @@
+ import type { OpenPanel } from "../types/types";
+ 
+ /**
+- * Panels reducer actions & state
++ * Panels reducer with undo/redo history, z-index management, and snap-to-grid.
++ *
++ * State shape:
++ * {
++ *   panels: OpenPanel[],
++ *   past: OpenPanel[][],
++ *   future: OpenPanel[][],
++ *   zCounter: number
++ * }
+  */
+-type PanelsState = OpenPanel[];
++
++type PanelsState = {
++  panels: OpenPanel[];
++  past: OpenPanel[][];
++  future: OpenPanel[][];
++  zCounter: number;
++};
+ 
+ type PanelsAction =
+   | { type: "OPEN_PANEL"; payload: OpenPanel }
+   | { type: "CLOSE_PANEL"; payload: { id: string } }
+   | { type: "MOVE_PANEL"; payload: { id: string; dx: number; dy: number } }
+-  | { type: "SET_PANEL_POS"; payload: { id: string; x: number; y: number } }
++  | { type: "SET_PANEL_POS"; payload: { id: string; x: number; y: number; snap?: boolean } }
+   | { type: "SET_PANEL_SIZE"; payload: { id: string; width: number; height: number } }
+   | { type: "BRING_TO_FRONT"; payload: { id: string } }
++  | { type: "UNDO" }
++  | { type: "REDO" }
+   | { type: "REMOVE_ALL" };
+ 
+ const PANELS_STORAGE_KEY = "app_panels_v1";
+-
+-function panelsReducer(state: PanelsState, action: PanelsAction): PanelsState {
++const SNAP_GRID = 16; // pixels for snap-to-grid default
++
++function clonePanels(p: OpenPanel[]) {
++  return p.map((x) => ({ ...x }));
++}
++
++export function panelsReducer(state: PanelsState, action: PanelsAction): PanelsState {
++  const pushPast = (newPanels: OpenPanel[]) => ({
++    panels: newPanels,
++    past: [...state.past, clonePanels(state.panels)],
++    future: [],
++    zCounter: state.zCounter,
++  });
++
+   switch (action.type) {
+-    case "OPEN_PANEL":
+-      return [...state, action.payload];
+-    case "CLOSE_PANEL":
+-      return state.filter((p) => p.id !== action.payload.id);
+-    case "MOVE_PANEL":
+-      return state.map((p) =>
++    case "OPEN_PANEL": {
++      const next = [...state.panels, action.payload];
++      return pushPast(next);
++    }
++    case "CLOSE_PANEL": {
++      const next = state.panels.filter((p) => p.id !== action.payload.id);
++      return pushPast(next);
++    }
++    case "MOVE_PANEL": {
++      const next = state.panels.map((p) =>
+         p.id === action.payload.id ? { ...p, x: p.x + action.payload.dx, y: p.y + action.payload.dy } : p
+       );
+-    case "SET_PANEL_POS":
+-      return state.map((p) => (p.id === action.payload.id ? { ...p, x: action.payload.x, y: action.payload.y } : p));
+-    case "SET_PANEL_SIZE":
+-      return state.map((p) =>
++      return pushPast(next);
++    }
++    case "SET_PANEL_POS": {
++      const { id, x, y, snap } = action.payload;
++      const sx = snap ? Math.round(x / SNAP_GRID) * SNAP_GRID : x;
++      const sy = snap ? Math.round(y / SNAP_GRID) * SNAP_GRID : y;
++      const next = state.panels.map((p) => (p.id === id ? { ...p, x: sx, y: sy } : p));
++      return pushPast(next);
++    }
++    case "SET_PANEL_SIZE": {
++      const next = state.panels.map((p) =>
+         p.id === action.payload.id ? { ...p, width: action.payload.width, height: action.payload.height } : p
+       );
++      return pushPast(next);
++    }
+     case "BRING_TO_FRONT": {
+-      // bring selected panel to end of array (highest z-index if you render on order)
+-      const target = state.find((p) => p.id === action.payload.id);
+-      if (!target) return state;
+-      return [...state.filter((p) => p.id !== action.payload.id), target];
+-    }
+-    case "REMOVE_ALL":
+-      return [];
++      // bump zCounter and set selected panel zIndex to that value
++      const zc = state.zCounter + 1;
++      const next = state.panels.map((p) => (p.id === action.payload.id ? { ...p, zIndex: zc } : p));
++      return { panels: next, past: [...state.past, clonePanels(state.panels)], future: [], zCounter: zc };
++    }
++    case "UNDO": {
++      if (state.past.length === 0) return state;
++      const previous = state.past[state.past.length - 1];
++      const newPast = state.past.slice(0, -1);
++      return { panels: clonePanels(previous), past: newPast, future: [clonePanels(state.panels), ...state.future], zCounter: state.zCounter };
++    }
++    case "REDO": {
++      if (state.future.length === 0) return state;
++      const nextState = state.future[0];
++      const newFuture = state.future.slice(1);
++      return { panels: clonePanels(nextState), past: [...state.past, clonePanels(state.panels)], future: newFuture, zCounter: state.zCounter };
++    }
++    case "REMOVE_ALL": {
++      return pushPast([]);
++    }
+     default:
+       return state;
+   }
+ }
+ 
+ /**
+- * Custom hook using reducer to manage panels.
+- * Exposes a stable API similar to the previous hook but driven by actions.
++ * Custom hook using reducer to manage panels with history & z-index.
+  */
+ export function usePanels() {
+-  // load initial from localStorage if present
+-  const initial = (() => {
++  // load initial panels from localStorage if present
++  const initialPanels = (() => {
+     try {
+       const raw = localStorage.getItem(PANELS_STORAGE_KEY);
+       if (raw) {
+-        const parsed = JSON.parse(raw) as PanelsState;
+-        // basic validation could go here
++        const parsed = JSON.parse(raw) as OpenPanel[];
+         return parsed;
+       }
+     } catch {
+-      // ignore parse errors
+-    }
+-    return [] as PanelsState;
++      // ignore
++    }
++    return [];
+   })();
+ 
+-  const [state, dispatch] = useReducer(panelsReducer, initial);
+-
+-  // persist panels (debounced-ish by using effect — updates on each change; you can throttle if you like)
++  const initialState: PanelsState = {
++    panels: initialPanels,
++    past: [],
++    future: [],
++    zCounter: 1,
++  };
++
++  const [state, dispatch] = useReducer(panelsReducer, initialState);
++
++  // persist panels array only
+   useEffect(() => {
+     try {
+-      localStorage.setItem(PANELS_STORAGE_KEY, JSON.stringify(state));
++      localStorage.setItem(PANELS_STORAGE_KEY, JSON.stringify(state.panels));
+     } catch {
+-      /* ignore storage errors */
+-    }
+-  }, [state]);
++      /* ignore */
++    }
++  }, [state.panels]);
+ 
+   // API functions
+ 
+   const openPanel = useCallback(
+-    (
+-      key: string,
+-      dropCell: { row: number; col: number } | null,
+-      containerSize: { width: number; height: number }
+-    ) => {
++    (key: string, dropCell: { row: number; col: number } | null, containerSize: { width: number; height: number }) => {
+       const panelDef = panelList.find((p) => p.key === key);
+       if (!panelDef) return;
+ 
+@@ -115,11 +170,12 @@
+         y,
+         width,
+         height,
++        zIndex: state.zCounter + 1,
+       };
+ 
+       dispatch({ type: "OPEN_PANEL", payload: panel });
+     },
+-    []
++    [state.zCounter]
+   );
+ 
+   const closePanel = useCallback((id: string) => dispatch({ type: "CLOSE_PANEL", payload: { id } }), []);
+@@ -128,9 +184,8 @@
+     dispatch({ type: "MOVE_PANEL", payload: { id, dx, dy } });
+   }, []);
+ 
+-  // commit absolute position (better for finalizing after transient drag)
+-  const setPanelPosition = useCallback((id: string, x: number, y: number) => {
+-    dispatch({ type: "SET_PANEL_POS", payload: { id, x, y } });
++  const setPanelPosition = useCallback((id: string, x: number, y: number, snap = true) => {
++    dispatch({ type: "SET_PANEL_POS", payload: { id, x, y, snap } });
+   }, []);
+ 
+   const resizePanelCommit = useCallback((id: string, width: number, height: number) => {
+@@ -139,17 +194,21 @@
+ 
+   const bringToFront = useCallback((id: string) => dispatch({ type: "BRING_TO_FRONT", payload: { id } }), []);
+ 
+-  // convenience: remove all panels (useful for tests)
++  const undo = useCallback(() => dispatch({ type: "UNDO" }), []);
++  const redo = useCallback(() => dispatch({ type: "REDO" }), []);
++
+   const removeAll = useCallback(() => dispatch({ type: "REMOVE_ALL" }), []);
+ 
+   return {
+-    openPanels: state,
++    openPanels: state.panels,
+     openPanel,
+     closePanel,
+     movePanel,
+     setPanelPosition,
+     resizePanelCommit,
+     bringToFront,
++    undo,
++    redo,
+     removeAll,
+   };
+ }
+
+--- a/src/components/ResizableDraggablePanel.tsx
++++ b/src/components/ResizableDraggablePanel.tsx
+@@ -90,6 +90,11 @@
+     (e.target as Element).setPointerCapture(e.pointerId);
+ 
+     dragState.current = {
++      // notify parent that this panel is active / focused
++    };
++    try { if (typeof (onActivate) === 'function') onActivate(id); } catch {};
++    // now set new drag state
++    dragState.current = {
+       active: true,
+       startX: e.clientX,
+       startY: e.clientY,
+
+
+--- a/src/__tests__/usePanels.reducer.test.ts
++++ b/src/__tests__/usePanels.reducer.test.ts
+@@ -0,0 +1,41 @@
++// src/__tests__/usePanels.reducer.test.ts
++import { panelsReducer } from "../hooks/usePanels"; // attempt to import; if not exposed, test fallback
++import type { OpenPanel } from "../types/types";
++
++// As the reducer is exported in the hook file, require it dynamically
++const mod = require("../hooks/usePanels");
++const reducer = mod.panelsReducer;
++
++describe("panelsReducer undo/redo and snap/z-index", () => {
++  const samplePanel: OpenPanel = { id: "p1", title: "P1", content: null, x: 10, y: 10, width: 200, height: 150, zIndex: 1 };
++
++  it("opens and sets panel", () => {
++    const init = { panels: [], past: [], future: [], zCounter: 1 };
++    const next = reducer(init, { type: "OPEN_PANEL", payload: samplePanel });
++    expect(next.panels.length).toBe(1);
++    expect(next.past.length).toBe(1);
++  });
++
++  it("bring to front increments zIndex", () => {
++    const init = { panels: [samplePanel], past: [], future: [], zCounter: 1 };
++    const next = reducer(init, { type: "BRING_TO_FRONT", payload: { id: "p1" } });
++    expect(next.panels[0].zIndex).toBeGreaterThan(1);
++  });
++
++  it("set panel pos snaps to grid", () => {
++    const init = { panels: [samplePanel], past: [], future: [], zCounter: 1 };
++    const next = reducer(init, { type: "SET_PANEL_POS", payload: { id: "p1", x: 23, y: 38, snap: true } });
++    expect(next.panels[0].x % 16).toBe(0); // SNAP_GRID = 16
++    expect(next.panels[0].y % 16).toBe(0);
++  });
++
++  it("undo and redo work", () => {
++    const init = { panels: [], past: [], future: [], zCounter: 1 };
++    const afterOpen = reducer(init, { type: "OPEN_PANEL", payload: samplePanel });
++    const afterMove = reducer(afterOpen, { type: "MOVE_PANEL", payload: { id: "p1", dx: 5, dy: 5 } });
++    const afterUndo = reducer(afterMove, { type: "UNDO" });
++    expect(afterUndo.panels.length).toBe(1);
++    const afterRedo = reducer(afterUndo, { type: "REDO" });
++    expect(afterRedo.panels.length).toBe(1);
++  });
++});
