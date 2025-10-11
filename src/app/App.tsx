@@ -79,67 +79,65 @@ const App = () => {
           </ul>
         </nav>
       )}
-
-      <MainWorkspace
-        onDrop={onMainDrop}
-        onDragOver={onMainDragOver}
-        onGridDropInfo={handleGridDropInfo}
-        gridRows={GRID_ROWS}
-        gridCols={GRID_COLS}>
-        <main className="main-workspace">
-          {/* Top Nav */}
-          <header className="app-header">
-            <button
-              className="nav-toggle-button"
-              style={{
-                boxShadow: navOpen ? "0 2px 8px #0002" : undefined,
-              }}
-              onClick={() => setNavOpen((v) => !v)}>
-              <span className="nav-toggle-icon">
-                {navOpen ? (
-                  // X icon
-                  <svg width="28" height="28" viewBox="0 0 28 28">
-                    <line
-                      x1="7"
-                      y1="7"
-                      x2="21"
-                      y2="21"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                    <line
-                      x1="21"
-                      y1="7"
-                      x2="7"
-                      y2="21"
-                      stroke="#fff"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ) : (
-                  // Hamburger icon
-                  <svg width="28" height="28" viewBox="0 0 28 28">
-                    <rect y="6" width="28" height="3" rx="1.5" fill="#fff" />
-                    <rect y="13" width="28" height="3" rx="1.5" fill="#fff" />
-                    <rect y="20" width="28" height="3" rx="1.5" fill="#fff" />
-                  </svg>
-                )}
-              </span>
-            </button>
-            <span className="app-title">{constants.fruteriaName}</span>
-            <div style={{ flex: 1 }} />
-            <UserProfile
-              onLogout={() => {
-                localStorage.removeItem("isLoggedIn");
-                window.dispatchEvent(new Event("login-success"));
-              }}
-              onThemeToggle={toggleTheme}
-              theme={theme}
-            />
-          </header>
-
+      <main className="main-workspace">
+        {/* Top Nav */}
+        <header className="app-header">
+          <button
+            className="nav-toggle-button"
+            style={{
+              boxShadow: navOpen ? "0 2px 8px #0002" : undefined,
+            }}
+            onClick={() => setNavOpen((v) => !v)}>
+            <span className="nav-toggle-icon">
+              {navOpen ? (
+                // X icon
+                <svg width="28" height="28" viewBox="0 0 28 28">
+                  <line
+                    x1="7"
+                    y1="7"
+                    x2="21"
+                    y2="21"
+                    stroke="#fff"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  <line
+                    x1="21"
+                    y1="7"
+                    x2="7"
+                    y2="21"
+                    stroke="#fff"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                // Hamburger icon
+                <svg width="28" height="28" viewBox="0 0 28 28">
+                  <rect y="6" width="28" height="3" rx="1.5" fill="#fff" />
+                  <rect y="13" width="28" height="3" rx="1.5" fill="#fff" />
+                  <rect y="20" width="28" height="3" rx="1.5" fill="#fff" />
+                </svg>
+              )}
+            </span>
+          </button>
+          <span className="app-title">{constants.fruteriaName}</span>
+          <div style={{ flex: 1 }} />
+          <UserProfile
+            onLogout={() => {
+              localStorage.removeItem("isLoggedIn");
+              window.dispatchEvent(new Event("login-success"));
+            }}
+            onThemeToggle={toggleTheme}
+            theme={theme}
+          />
+        </header>
+        <MainWorkspace
+          onDrop={onMainDrop}
+          onDragOver={onMainDragOver}
+          onGridDropInfo={handleGridDropInfo}
+          gridRows={GRID_ROWS}
+          gridCols={GRID_COLS}>
           {openPanels.length === 0 ? (
             <div className="empty-panel-message">
               {constants.emptyPanelMessage.title} <br /> {constants.emptyPanelMessage.description}
@@ -156,8 +154,8 @@ const App = () => {
               />
             ))
           )}
-        </main>
-      </MainWorkspace>
+        </MainWorkspace>
+      </main>
     </div>
   );
 };
