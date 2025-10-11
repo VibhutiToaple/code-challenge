@@ -5,11 +5,9 @@ import { NAV_BAR_HEIGHT } from "@utils/constants";
 
 import { OpenPanel } from "../types/types";
 
-export type LayoutMode = "free" | "horizontal" | "vertical" | "cha-cha";
 
 export function usePanels() {
   const [openPanels, setOpenPanels] = useState<OpenPanel[]>([]);
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>("free");
 
   const openPanel = (
     key: string,
@@ -79,8 +77,6 @@ export function usePanels() {
 
   return {
     openPanels,
-    layoutMode,
-    setLayoutMode,
     openPanel,
     closePanel,
     movePanel,

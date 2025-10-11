@@ -136,10 +136,6 @@ const ResizableDraggablePanel = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDragging, isResizing, onClose]);
 
-  const handleFocus = () => {
-    if (onActivate) onActivate(id);
-  };
-
   return (
     <motion.div
       ref={panelRef}
